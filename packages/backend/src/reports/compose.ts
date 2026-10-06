@@ -4,7 +4,7 @@
 // dailies and a model only writes its overview and introductions, from the brief in the industry pack
 // (industry/prompts/report-period*.md).
 import { z } from "zod";
-import { EDITION_TIMES, SITE } from "@aihot/site";
+import { EDITION_TIMES, REPORTS, SITE } from "@aihot/site";
 import { PLAIN_TERMS, RELEASE } from "@aihot/industry/taxonomy";
 import { promptText, promptVersion } from "../editorial/prompts.ts";
 import { modelFor } from "../editorial/models.ts";
@@ -15,8 +15,24 @@ import { logError } from "../lib/log-error.ts";
 import { chatJson } from "../providers/llm.ts";
 import { completeReceipt } from "../providers/receipts.ts";
 import { shutdownSignal } from "../jobs/queue.ts";
+import { behindSources } from "../events/hot.ts";
 import { emit } from "../modules.ts";
 import { arrangeDaily, candidates, dailyEdition, periodEntries, sectionOf, SECTION_ORDER, type Candidate, type EditionEntry } from "./edition.ts";
+
+/**
+ * The tiers whose sources are "official releases" for the masthead. T1 is first-hand by the
+ * framework's own definition (publication scope reads tier = 'T1'); T_DATA is this pack's tier for
+ * official statistics publishers (CFTC, EIA and the like), which are as authoritative as T1.
+ * A tier absent here is not counted as official, and one absent from SELECTION.thresholds does not
+ * take part in selection scoring at all — keep the two in step when adding a tier.
+ */
+const OFFICIAL_TIERS = ["T1", "T_DATA"] as const;
+
+/**
+ * The source kinds the collector fetches on a schedule. Pushed sources are not among them: nothing
+ * polls them, so their fetch clock says nothing about whether their script ran.
+ */
+const POLLED_KINDS = ["rss", "web_list", "json_list", "x_search"] as const;
 
 export const REPORT_VERSION = promptVersion("report-period", "report-period-sections", "report-period-no-sections");
 
@@ -33,6 +49,47 @@ export function dailyMetrics(main: EditionEntry[]) {
     ...(RELEASE ? { modelsReleased: main.filter((e) => isRelease(e.category, e.tags) && !e.previous && e.authority < 3).length } : {}),
     firstPartyEvents: main.filter((e) => e.entry.firstParty).length,
   };
+}
+
+/**
+ * Official sources are the ones whose tier counts as first-hand: T1 (central banks, statistical
+ * agencies) plus this pack's T_DATA (official statistics publishers such as CFTC and EIA). A source is
+ * treated as missed when collection says so: it has not succeeded within a grace of its own interval.
+ * `behindSources` (events/hot.ts) already encodes that grace as interval*3 with a 90 minute floor, so
+ * the masthead and the hot list agree on what "behind" means instead of each inventing a threshold.
+ *
+ * This is what lets the masthead say "some official sources were not collected" instead of pretending
+ * a quiet day is a collected one (Spec §9.14, AC-17/18). Reporting a collection failure as "nothing
+ * happened today" is the worst case: it tells the reader the market is calm when the site is blind.
+ *
+ * Only the kinds the collector actually polls are counted, mirroring `sourceClocks()` (events/hot.ts).
+ * A pushed source (`external`) is excluded on purpose: nothing fetches it on a schedule, so
+ * `behindSources` — which treats "never succeeded" as behind — would count it forever and the masthead
+ * would cry wolf on every issue until the line was ignored. A banner that is always on defends the
+ * reader no better than one that is never on. Whether a pushed source is healthy is a separate
+ * question, answered by whether its script ran, not by a fetch clock this query cannot see.
+ */
+async function officialSourceState(at: Date) {
+  const official = await sql<{ id: string; last_ok_at: Date | null; interval_minutes: number }[]>`
+    SELECT id, last_ok_at, interval_minutes FROM sources
+    WHERE enabled AND participation_mode <> 'isolated' AND tier = ANY(${OFFICIAL_TIERS})
+      AND kind = ANY(${POLLED_KINDS}::text[])`;
+  if (!official.length) return { officialSourcesMissed: 0, officialSourcesTotal: 0 };
+  const missed = behindSources(
+    official.map((s) => ({ id: s.id, lastOk: s.last_ok_at?.getTime() ?? null, graceMs: Math.max(s.interval_minutes * 3, 90) * 60_000 })),
+    at.getTime(),
+    true,
+  );
+  return { officialSourcesMissed: new Set(missed).size, officialSourcesTotal: official.length };
+}
+
+/**
+ * The masthead line about official releases, in the site's three states (REPORTS.officialTally).
+ * Kept here, next to the counts it describes, so the wording and the numbers cannot drift apart.
+ */
+export function officialHeadline(officialEvents: number, officialSourcesMissed: number): string {
+  if (officialSourcesMissed > 0) return REPORTS.officialTally.incomplete;
+  return officialEvents > 0 ? REPORTS.officialTally.withItems(officialEvents) : REPORTS.officialTally.empty;
 }
 
 type ReportKind = "daily" | "weekly" | "monthly";
@@ -88,6 +145,21 @@ export async function composeDaily(date: string, reason?: string): Promise<{ key
   if (edition.entries.length === 0) throw new Error(`daily ${date}: no selected items in its window`);
   const issue = arrangeDaily(edition.entries);
   const [lead, ...rest] = issue.main as [EditionEntry, ...EditionEntry[]];
+  // The official tally: how many of the issue's entries came from an official source, and whether any
+  // official source was not collected. Both go into the issue so the masthead can render the three
+  // states (REPORTS.officialTally) rather than showing a bare count that reads like a site failure.
+  // The entries' own `firstParty` is the framework's tier='T1' test; the tiers of the sources actually
+  // cited are read here so T_DATA counts as official too (Spec §9.14).
+  const citedSources = [...new Set(issue.main.map((e) => e.entry.sourceId))];
+  const officialTiers = new Set(
+    citedSources.length
+      ? (await sql<{ id: string; tier: string }[]>`
+          SELECT id, tier FROM sources WHERE id = ANY(${citedSources}) AND tier = ANY(${OFFICIAL_TIERS})`)
+          .map((r) => r.id)
+      : [],
+  );
+  const officialEvents = issue.main.filter((e) => officialTiers.has(e.entry.sourceId)).length;
+  const { officialSourcesMissed, officialSourcesTotal } = await officialSourceState(end);
   const content = {
     date,
     lead: { title: lead.entry.title, leadParagraph: lead.entry.summary },
@@ -98,6 +170,12 @@ export async function composeDaily(date: string, reason?: string): Promise<{ key
       .filter((s) => s.items.length > 0),
     flashes: issue.flashes.map((e) => e.entry),
     metrics: dailyMetrics(issue.main),
+    official: {
+      events: officialEvents,
+      sourcesTotal: officialSourcesTotal,
+      sourcesMissed: officialSourcesMissed,
+      headline: officialHeadline(officialEvents, officialSourcesMissed),
+    },
     windowStart: start.toISOString(),
     windowEnd: end.toISOString(),
     generator: { version: REPORT_VERSION, ...edition.stats, ...issue.stats },

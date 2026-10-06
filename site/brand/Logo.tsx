@@ -4,7 +4,9 @@ import { SITE } from "../site.ts";
 
 export function Wordmark({ size = 24, className = "", title = SITE.name }: { size?: number; className?: string; title?: string }) {
   return (
-    <span className={`inline-flex items-center font-black leading-none tracking-[-0.03em] ${className}`} style={{ fontSize: Math.round(size * 0.92) }} aria-label={title} role="img">
+    // 窄体（Roboto Condensed 600）是字标的字重来源：中文落系统字，拉丁与数字走窄体，混排时基线不飘。
+    // tracking 归零——字标本身已经是图形，再压字距只会让汉字右侧发空。
+    <span className={`inline-flex items-center font-condensed font-semibold leading-none ${className}`} style={{ fontSize: Math.round(size * 0.92) }} aria-label={title} role="img">
       <span aria-hidden="true" className="mr-[0.3em] inline-block size-[0.42em] rounded-full bg-accent" />
       <span aria-hidden="true">{SITE.name}</span>
     </span>

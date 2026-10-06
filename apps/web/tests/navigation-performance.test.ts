@@ -20,7 +20,11 @@ import { chromium, webkit, expect, type Browser } from "@playwright/test";
 import type { FeedItemSummary, SiteItemDetail, ReportDetail } from "@aihot/contracts/site";
 
 const at = '2026-10-04T08:00:00.000Z';
-const item: FeedItemSummary = {id:'navigation-fixture',title:'性能检查文章',summary:'固定摘要',reason:'固定推荐理由',source:{name:'Fixture'},publishedAt:at,timelineAt:at,category:'ai-models',tags:[],score:80,selected:true,channel:'news',x:null};
+// The category is a real one from CATEGORIES, not an arbitrary string: the assertions below read the
+// label off the rendered filter tab and click it by that label, and a category the site does not have
+// has no tab to click (and its /?category=… URL 404s). Unlike the `category` text column in tests/,
+// which is a free fixture value with no foreign key, this one is load-bearing.
+const item: FeedItemSummary = {id:'navigation-fixture',title:'性能检查文章',summary:'固定摘要',reason:'固定推荐理由',source:{name:'Fixture'},publishedAt:at,timelineAt:at,category:'precious-metals',tags:[],score:80,selected:true,channel:'news',x:null};
 const detail: SiteItemDetail = {...item,x:null,originalTitle:'Fixture article',links:{original:'https://example.org/article'},discoveredAt:at,story:null,readingMode:'full',author:null,body:{zh:'<p>固定正文</p>',original:null,zhKind:'translation',complete:true},outline:[],relatedStories:[],topics:[],indexable:true,markdownAvailable:true,group:null,hasTranslation:true,bodyLanguage:'zh'};
 const codeSource='import json\n\nwith open("data.json") as file:\n    data = json.load(file)\n\nfor record in data:\n    print(record["title"])\n';
 const readerBody=Array.from({length:30},(_,i)=>`<p>阅读段落 ${i}：先阅读文章，再查看后面的代码和图片。正文保持可读，图片和代码在需要时增强。</p>`).join('')
@@ -46,8 +50,8 @@ const api=createServer((req,res)=>{
   hits.push(req.url!);
   if(p===failing){res.statusCode=503;return res.end(JSON.stringify({code:'unavailable'}));}
   if(p==='/api/health')return res.end('{}');
-  if(p==='/api/site/search/suggestions')return res.end(JSON.stringify({topics:[{slug:'openai',name:'OpenAI',group:'company'}],hot:[{rank:1,title:'建议版本 '+suggestionsVersion,to:'/story/fixture'}]}));
-  if(p==='/api/site/topics')return res.end(JSON.stringify({groups:[],topics:[{slug:'openai',name:'OpenAI',group:'company',definition:'Fixture',brand:null,total:0,recent:0,indexable:false,latest:null}]}));
+  if(p==='/api/site/search/suggestions')return res.end(JSON.stringify({topics:[{slug:'openai',name:'OpenAI',group:'variety'}],hot:[{rank:1,title:'建议版本 '+suggestionsVersion,to:'/story/fixture'}]}));
+  if(p==='/api/site/topics')return res.end(JSON.stringify({groups:[],topics:[{slug:'openai',name:'OpenAI',group:'variety',definition:'Fixture',brand:null,total:0,recent:0,indexable:false,latest:null}]}));
   if(p==='/api/site/hot')return res.end(JSON.stringify({computedAt:at,windowHours:48,entries:[{rank:1,story:{publicId:'fixture',title:'建议版本 '+suggestionsVersion},heat:10,trend:'flat',trendPct:0,badges:[],participantCount:0,sourceCount:0,sourceNames:[],participants:[],spark:[],summary:null,latest:null,cover:null}]}));
   if(p==='/api/site/timeline'){
     res.setHeader('X-Accel-Expires','@'+(Math.floor(Date.now()/1000)+ttl));
@@ -110,15 +114,15 @@ for(const [engine,width] of [['chromium',1280],['webkit',390]] as const){
       assert.equal(hits.slice(start).filter(x=>x.startsWith('/api/site/timeline')).length,1,'returning to an SSR list needs no new data request');
       await context.setOffline(false);
       if(width===390)await page.getByRole('button',{name:/^筛选/}).click();
-      await page.getByRole('link',{name:'模型',exact:true}).click();
-      await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible();
+      await page.getByRole('link',{name:'贵金属',exact:true}).click();
+      await expect(page.getByRole('link',{name:'分类 precious-metals',exact:true})).toBeVisible();
       if(width===390)await page.getByRole('button',{name:/^筛选/}).click();
-      await page.getByRole('link',{name:'产品',exact:true}).click();
-      await expect(page.getByRole('link',{name:'分类 ai-products',exact:true})).toBeVisible();
+      await page.getByRole('link',{name:'大宗商品',exact:true}).click();
+      await expect(page.getByRole('link',{name:'分类 industrial-commodities',exact:true})).toBeVisible();
       await context.setOffline(true);
       await page.goBack();
-      await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible({timeout:1500});
-      await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',origin+'/?category=ai-models');
+      await expect(page.getByRole('link',{name:'分类 precious-metals',exact:true})).toBeVisible({timeout:1500});
+      await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href',origin+'/?category=precious-metals');
     }finally{await context.close();}
   });
 }
@@ -172,17 +176,17 @@ test('intent on a selected link preserves visited data and the next revisit star
   page.on('request',request=>{if(request.url().includes('.data'))requests.push(request.url());});
   try{
     await page.goto(origin+'/');
-    await page.getByRole('link',{name:'模型',exact:true}).click();
-    await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible();
-    await page.getByRole('link',{name:'模型',exact:true}).focus();
+    await page.getByRole('link',{name:'贵金属',exact:true}).click();
+    await expect(page.getByRole('link',{name:'分类 precious-metals',exact:true})).toBeVisible();
+    await page.getByRole('link',{name:'贵金属',exact:true}).focus();
     await page.waitForTimeout(150);
-    await page.getByRole('link',{name:'产品',exact:true}).click();
-    await expect(page.getByRole('link',{name:'分类 ai-products',exact:true})).toBeVisible();
-    await page.getByRole('link',{name:'产品',exact:true}).focus();
+    await page.getByRole('link',{name:'大宗商品',exact:true}).click();
+    await expect(page.getByRole('link',{name:'分类 industrial-commodities',exact:true})).toBeVisible();
+    await page.getByRole('link',{name:'大宗商品',exact:true}).focus();
     await page.waitForTimeout(150);
     const before=requests.length;
-    await page.getByRole('link',{name:'模型',exact:true}).click();
-    await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible();
+    await page.getByRole('link',{name:'贵金属',exact:true}).click();
+    await expect(page.getByRole('link',{name:'分类 precious-metals',exact:true})).toBeVisible();
     assert.deepEqual(requests.slice(before),[],'neither prefetch nor navigation may evict and reload a still-valid visited page');
   }finally{await context.close();}
 });

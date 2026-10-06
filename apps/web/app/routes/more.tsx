@@ -10,7 +10,7 @@ import { webModules } from "../site-modules";
 import { pageMeta } from "../lib/seo";
 import { useStarred } from "../lib/local-state";
 import { ThemeSwitch } from "../components/shell/ThemeSwitch";
-import { IconBookmark, IconChevronRight, IconGrid, IconHeart, IconMessage, IconMoon, IconPlug, IconSparkles } from "../components/icons";
+import { IconBookmark, IconChevronRight, IconGrid, IconHeart, IconHistory, IconMessage, IconMoon, IconPlug } from "../components/icons";
 
 export const handle: Screen = { tab: "me", name: "我的" };
 
@@ -92,7 +92,7 @@ export default function MorePage() {
         </Group>
         <Group title="关于">
           <RowLink row={{ to: "/about", label: `关于 ${SITE.name}`, icon: <IconHeart size={20} /> }} />
-          <RowLink row={{ to: "/changelog", label: "更新日志", icon: <IconSparkles size={20} /> }} dot={changelogDot} />
+          <RowLink row={{ to: "/changelog", label: "更新日志", icon: <IconHistory size={20} /> }} dot={changelogDot} />
           <RowLink row={{ to: "/feedback", label: "意见反馈", icon: <IconMessage size={20} /> }} />
         </Group>
       </div>

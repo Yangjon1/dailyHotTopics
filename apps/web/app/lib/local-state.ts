@@ -252,7 +252,15 @@ export function resolvedTheme(pref: ThemePreference = getThemePreference()): "li
   }
 }
 
-const THEME_COLOR = { light: "#faf9f6", dark: "#13191c" } as const;
+/**
+ * The browser chrome colour per theme, matching --bg in app.css.
+ *
+ * A <meta name="theme-color"> cannot read a CSS variable, so the value is written out here and has
+ * to be kept in step with the token by hand. It is the one place in the app where a colour is a
+ * literal rather than a token reference: the platform wants a resolved value, and there is no way
+ * to hand it a var().
+ */
+const THEME_COLOR = { light: "#f7f8f9", dark: "#14191c" } as const;
 
 /** Puts a theme on the page: the document's data-theme and the browser's theme colour. */
 export function applyTheme(theme: "light" | "dark", followsSystem: boolean) {

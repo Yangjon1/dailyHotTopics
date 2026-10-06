@@ -21,7 +21,25 @@
   npm run build -w @aihot/web && node --test apps/web/tests/*.test.ts
   node scripts/smoke.ts --base http://localhost:3000             # 站点跑起来以后
   ```
-- `tests/` 里部分测试用的是示例行业的分类、标签和公司，改了 `industry/taxonomy.ts` 后把这些例子换成新行业的对应项。
+- `tests/` 里部分测试用的是示例行业的分类、标签和公司，改了 `industry/taxonomy.ts` 后把这些例子换成新行业的对应项。**只换夹具，不改断言逻辑**——要测的规则本身不变。
+
+### 在 Docker 里跑测试
+
+**用 `docker compose exec` 跑测试有两个陷阱**，都会让人得出错误结论：
+
+1. **它跑的是镜像内的代码，不是工作区的。** 改完文件不 `docker compose build` 就测，测的是旧代码。用挂载宿主源码的方式跑：
+   ```bash
+   PW=$(grep -E "^POSTGRES_PASSWORD=" .env | cut -d= -f2-)
+   R=$(pwd -W)
+   docker run --rm --user root --network aihot_default \
+     -e DATABASE_URL="postgres://aihot:${PW}@db:5432/<名字>_test" \
+     -v "$R/tests:/app/tests" -v "$R/industry:/app/industry" -v "$R/site:/app/site" \
+     -v "$R/packages:/app/packages" -v "$R/apps:/app/apps" -v "$R/scripts:/app/scripts" \
+     aihot-app sh -lc 'cd /app && node --test-global-setup=tests/databases.ts --import ./tests/databases.ts --test "tests/*.test.ts"'
+   ```
+2. **容器的 `env_file: .env` 会注入真实密钥。** 而 `tests/setup.ts` 的 `embeddingsStub()` 只桩 `DASHSCOPE_*`；`providers/embeddings.ts:9` 的 `own` 判断读的是 `EMBEDDING_API_KEY`，设了它就会走 `EMBEDDING_BASE_URL` ——**桩被绕过，测试打真实付费 API，且「看起来成功」**。所以桩现在同时设两对变量；新增供应商配置项时要一起桩掉。
+
+**比较测试结果前，先确认两次跑的是同一份代码和同一套环境。** 失败数不同往往来自这两点，而不是代码改动。
 
 ## 要守住的规则
 

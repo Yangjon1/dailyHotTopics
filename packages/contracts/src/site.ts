@@ -305,6 +305,13 @@ export interface ReportDetail {
    */
   cover: { url: string; srcSet?: string; width: number | null; height: number | null; caption: string | null } | null;
   metrics: Record<string, number>;
+  /**
+   * The masthead's official-release tally, in the site's own words. `headline` is written once, where
+   * the numbers are counted, so no reader-facing surface can word the collection-failure case
+   * differently: a partial collection failure must never be rendered as "nothing happened today".
+   * Absent on issues composed before this field existed, hence optional and nullable.
+   */
+  official?: { events: number; sourcesTotal: number; sourcesMissed: number; headline: string } | null;
   readingMinutes: number;
   prev: string | null;
   next: string | null;
@@ -354,6 +361,44 @@ export interface ChangelogRelease {
 export interface ChangelogResponse {
   latestVersion: string;
   releases: ChangelogRelease[];
+}
+
+/**
+ * One variety's latest daily price snapshot. `price` is null when nothing has been collected for it
+ * yet, so a reader sees "no data" rather than a zero that looks like a real quote.
+ */
+export interface Quote {
+  symbol: QuoteSymbol;
+  price: number | null;
+  /** ISO time of the quote itself (upstream `updatedAt`), not of the collection. */
+  updatedAt: string | null;
+  /**
+   * Change against the baseline snapshot below, as a percentage. **Not a financial daily change**
+   * (that one is measured against the previous close, which this feed does not carry). null when
+   * there is no baseline, so the page shows a dash instead of a fabricated 0.
+   */
+  changePct: number | null;
+  /** How current the baseline is: yesterday's snapshot, an older one, or none at all. */
+  basis: QuoteBasis;
+  /** The baseline snapshot's own time, so the reader can see how old the comparison is. */
+  basisAt: string | null;
+  /**
+   * Whole days between the baseline and today, so a stale baseline cannot be read as a daily change.
+   * A gap over three days is marked by the page; null when there is no baseline.
+   */
+  baselineAgeDays: number | null;
+  /** The unit the price is quoted in: USD/oz for the precious metals, USD/lb for copper. */
+  unit: string | null;
+}
+
+export type QuoteBasis = "yesterday" | "lastSnapshot" | "none";
+
+/** The varieties the price band shows, in the order the page lists them. */
+export type QuoteSymbol = "XAU" | "XAG" | "XPT" | "XPD" | "HG";
+
+export interface QuotesResponse {
+  quotes: Quote[];
+  computedAt: string;
 }
 
 /**

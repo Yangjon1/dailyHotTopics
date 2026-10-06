@@ -76,7 +76,7 @@ export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onS
           onClick={star.toggle}
           label={star.on ? "已收藏" : "收藏"}
           icon={
-            <span key={star.pulse} className={`flex ${star.pulse ? "anim-bump" : ""}`}>
+            <span key={star.pulse} className={`flex ${star.pulse ? "anim-confirm" : ""}`}>
               <IconBookmark size={22} filled={star.on} />
             </span>
           }

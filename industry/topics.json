@@ -1,337 +1,274 @@
 {
   "groups": [
     {
-      "key": "company",
-      "name": "公司与模型",
-      "blurb": "按厂商追踪模型、产品与公司动态"
+      "key": "variety",
+      "name": "品种",
+      "blurb": "按品种追踪：贵金属、基础金属、能源、利率与美元"
     },
     {
-      "key": "field",
-      "name": "技术方向",
-      "blurb": "按技术领域深挖：Agent、多模态、具身智能……"
+      "key": "institution",
+      "name": "机构与国别",
+      "blurb": "按发布方追踪：央行、统计机构、交易所、行业协会与主要国家"
     },
     {
-      "key": "genre",
+      "key": "form",
       "name": "内容形态",
-      "blurb": "按内容类型浏览：论文、教程、观点、政策……"
+      "blurb": "按内容类型浏览：官方数据、政策决议、供需、地缘、机构观点"
     }
   ],
   "topics": [
     {
-      "slug": "openai",
-      "name": "OpenAI / ChatGPT",
-      "group": "company",
-      "entityId": "openai",
-      "definition": "OpenAI 的全部动态：GPT 系列模型、ChatGPT 与 Sora 产品、公司战略与人事的持续追踪。"
+      "slug": "gold",
+      "name": "黄金",
+      "group": "variety",
+      "tags": ["黄金"],
+      "aliases": ["金价", "XAU", "AU9999"],
+      "definition": "黄金的全部动态：现货金与 COMEX 期金、伦敦金定盘价、沪金与上海金、金饰与工业需求、央行购金、SPDR 等 ETF 持仓。"
     },
     {
-      "slug": "anthropic",
-      "name": "Anthropic / Claude",
-      "group": "company",
-      "entityId": "anthropic",
-      "definition": "Anthropic 的全部动态：Claude 系列模型、Claude Code、安全研究路线与公司进展的持续追踪。"
+      "slug": "silver",
+      "name": "白银",
+      "group": "variety",
+      "tags": ["白银"],
+      "aliases": ["银价", "XAG", "AG9999", "金银比"],
+      "definition": "白银的全部动态：现货银与 COMEX 期银、沪银、光伏与 MLCC 工业需求、库存与供需缺口。与黄金常同向但波动更大，独立成页。"
     },
     {
-      "slug": "google",
-      "name": "Google / Gemini",
-      "group": "company",
-      "entityId": "google",
-      "aliases": [
-        "DeepMind"
-      ],
-      "definition": "Google 与 DeepMind 的 AI 动态：Gemini 系列、Veo 视频模型、研究成果与产品生态的持续追踪。"
+      "slug": "platinum",
+      "name": "铂金",
+      "group": "variety",
+      "tags": ["铂金"],
+      "aliases": ["铂", "XPT", "NYMEX铂"],
+      "definition": "铂金与铂族金属的全部动态：NYMEX 铂金、现货铂、供应扰动与汽车与首饰工业需求。"
     },
     {
-      "slug": "deepseek",
-      "name": "DeepSeek",
-      "group": "company",
-      "entityId": "deepseek",
-      "definition": "DeepSeek（深度求索）的模型发布、开源权重、技术报告与 API 价格变化。"
+      "slug": "palladium",
+      "name": "钯金",
+      "group": "variety",
+      "tags": ["钯金"],
+      "aliases": ["钯", "XPD", "NYMEX钯"],
+      "definition": "钯金的全部动态：供应过剩、库存与汽车催化剂需求。2022-2024 年曾与金银完全背离，合并会丢信息，故独立成页。"
     },
     {
-      "slug": "qwen",
-      "name": "千问 Qwen",
-      "group": "company",
-      "entityId": "qwen",
-      "definition": "阿里千问 Qwen 系列的开源发布与迭代：从旗舰模型到端侧小模型的全谱系动态。"
+      "slug": "copper",
+      "name": "铜",
+      "group": "variety",
+      "tags": ["铜"],
+      "aliases": ["铜价", "LME铜", "沪铜", "COMEX铜"],
+      "definition": "铜的全部动态：LME 与沪铜库存、冶炼加工费 TC/RC、矿端扰动与精矿加工费，铜价与美元及中国需求的联动。"
     },
     {
-      "slug": "kimi",
-      "name": "Kimi / 月之暗面",
-      "group": "company",
-      "entityId": "kimi",
-      "definition": "月之暗面 Kimi 系列模型与产品动态：K 系列开源模型、长上下文技术与产品演进的追踪。"
+      "slug": "base-metals",
+      "name": "基础金属",
+      "group": "variety",
+      "tags": ["基础金属"],
+      "aliases": ["铝", "锌", "镍", "锡", "铅", "基本金属"],
+      "definition": "铝、锌、镍、锡、铅的供需、库存与冶炼动态。中间层聚合标签，避免六个品种各占一行。"
     },
     {
-      "slug": "minimax",
-      "name": "MiniMax",
-      "group": "company",
-      "entityId": "minimax",
-      "definition": "MiniMax 的模型与产品动态：M 系列大模型、语音与多模态能力、开源与商业化进展。"
+      "slug": "crude-oil",
+      "name": "原油",
+      "group": "variety",
+      "tags": ["原油"],
+      "aliases": ["WTI", "Brent", "布伦特", "布油", "OPEC"],
+      "definition": "WTI 与 Brent 原油的全部动态：OPEC+ 减产与增产、EIA 与 API 库存、地缘供应中断、炼厂开工与裂解价差。"
     },
     {
-      "slug": "zhipu",
-      "name": "智谱 GLM",
-      "group": "company",
-      "entityId": "zhipu",
-      "definition": "智谱的 GLM 系列模型动态：旗舰开源发布、代码与推理能力迭代、商业化与生态进展的追踪。"
+      "slug": "natural-gas",
+      "name": "天然气",
+      "group": "variety",
+      "tags": ["天然气"],
+      "aliases": ["Henry Hub", "TTF", "LNG", "natgas"],
+      "definition": "Henry Hub、TTF 与 LNG 的全部动态：季节性需求、库存与天气、液化出口产能。与原油不同步，独立成页。"
     },
     {
-      "slug": "xai",
-      "name": "xAI / Grok",
-      "group": "company",
-      "entityId": "xai",
-      "definition": "马斯克 xAI 与 Grok 系列的全部动态：模型迭代、算力扩张与 X 平台整合的持续追踪。"
+      "slug": "dollar-index",
+      "name": "美元指数",
+      "group": "variety",
+      "tags": ["美元指数"],
+      "aliases": ["DXY", "美元", "美元汇率"],
+      "definition": "美元指数与主要汇率的全部动态：美联储路径、避险美元、美债与非农对美元的驱动。"
     },
     {
-      "slug": "meta",
-      "name": "Meta / Llama",
-      "group": "company",
-      "entityId": "meta",
-      "definition": "Meta 的 AI 动态：Llama 与 Muse 系列模型、超级智能实验室与 Meta AI 产品。"
+      "slug": "treasury-yield",
+      "name": "美债收益率",
+      "group": "variety",
+      "tags": ["美债收益率"],
+      "aliases": ["美债", "10年期美债", "十年期国债收益率", "实际利率"],
+      "definition": "美债名义与实际收益率、收益率曲线、期限溢价与拍卖结果。实际利率是黄金定价的直接因子。"
     },
     {
-      "slug": "microsoft",
-      "name": "Microsoft / Copilot",
-      "group": "company",
-      "entityId": "microsoft",
-      "definition": "微软的 AI 布局：Copilot 全家桶、Azure AI 基础设施与 OpenAI 合作关系的持续追踪。"
+      "slug": "central-bank-gold",
+      "name": "央行购金",
+      "group": "variety",
+      "tags": ["央行购金"],
+      "aliases": ["官方储备", "黄金储备", "储备购金"],
+      "definition": "各国央行与官方机构的黄金储备变化：月度与季度购金、储备占比、外汇储备结构调整。T1 高频事件。"
     },
     {
-      "slug": "nvidia",
-      "name": "NVIDIA 英伟达",
-      "group": "company",
-      "entityId": "nvidia",
-      "definition": "英伟达的 AI 芯片与生态动态：GPU 新品、CUDA 生态、机器人平台与 AI 算力市场的风向。"
+      "slug": "etf-holdings",
+      "name": "ETF 持仓",
+      "group": "variety",
+      "tags": ["ETF持仓"],
+      "aliases": ["SPDR", "GLD", "黄金ETF"],
+      "definition": "黄金与白银 ETF 的持仓量与流入流出：SPDR GLD 等基金的日度持仓变化，是资金面的高频数据事件。"
     },
     {
-      "slug": "hugging-face",
-      "name": "Hugging Face",
-      "group": "company",
-      "entityId": "hugging-face",
-      "definition": "Hugging Face 开源社区动态：热门模型与数据集、排行榜变化与开源生态的晴雨表。"
+      "slug": "geopolitics",
+      "name": "地缘政治",
+      "group": "variety",
+      "tags": ["地缘政治"],
+      "aliases": ["地缘", "制裁", "冲突", "关税"],
+      "definition": "冲突、制裁、贸易摩擦与关税政策对商品供给、成本与避险买盘的传导，跨资产影响。"
     },
     {
-      "slug": "cursor",
-      "name": "Cursor",
-      "group": "company",
-      "entityId": "cursor",
-      "definition": "Cursor（Anysphere）的编辑器与编码 Agent 动态：产品迭代、自研模型与定价变化。"
+      "slug": "fed",
+      "name": "美联储",
+      "group": "institution",
+      "entityId": "fed",
+      "definition": "美联储的全部动态：利率决议与点阵图、会议纪要、资产负债表与缩表进度、官员讲话与前瞻指引。"
     },
     {
-      "slug": "openrouter",
-      "name": "OpenRouter",
-      "group": "company",
-      "entityId": "openrouter",
-      "definition": "OpenRouter 模型路由平台动态：新模型上架、用量排行与开发者选型的真实市场信号。"
+      "slug": "ecb",
+      "name": "欧洲央行",
+      "group": "institution",
+      "entityId": "ecb",
+      "definition": "欧洲央行的全部动态：利率决议、资产购买计划、拉加德讲话与欧元区通胀就业数据。"
     },
     {
-      "slug": "agent",
-      "name": "Agent 智能体",
-      "group": "field",
-      "tags": [
-        "Agent"
-      ],
-      "definition": "让模型自主规划、调用工具、完成多步任务的技术方向——从 Claude Code、Manus 到各家 Agent 框架与评测基准的全部动态。"
+      "slug": "pboc",
+      "name": "中国人民银行",
+      "group": "institution",
+      "entityId": "pboc",
+      "definition": "中国人民银行的全部动态：LPR 与 MLF 利率、存款准备金率、公开市场操作、人民币汇率中间价与跨境资本流动。"
     },
     {
-      "slug": "coding",
-      "name": "AI 编码",
-      "group": "field",
-      "tags": [
-        "编码"
-      ],
-      "definition": "AI 写代码的一切：编码助手、Vibe Coding、代码模型评测与开发工作流变革。"
+      "slug": "cftc",
+      "name": "CFTC 持仓报告",
+      "group": "institution",
+      "entityId": "cftc",
+      "definition": "美国商品期货交易委员会的全部动态：黄金、白银、铂金、钯金与原油的周度持仓报告，含八类交易者分项持仓与净变化。"
     },
     {
-      "slug": "reasoning",
-      "name": "推理能力",
-      "group": "field",
-      "tags": [
-        "推理"
-      ],
-      "definition": "模型推理能力的进展：思维链、推理模型、数学与逻辑基准的突破与争议。"
+      "slug": "eia",
+      "name": "EIA 能源数据",
+      "group": "institution",
+      "entityId": "eia",
+      "definition": "美国能源信息署的全部动态：原油、汽油、馏分油与天然气库存周报，短期能源署供需预测与产量数据。"
     },
     {
-      "slug": "multimodal",
-      "name": "多模态",
-      "group": "field",
-      "tags": [
-        "多模态"
-      ],
-      "definition": "文本之外的能力：视觉理解、图文混合、音视频输入输出的模型与产品进展。"
+      "slug": "wgc",
+      "name": "世界黄金协会",
+      "group": "institution",
+      "entityId": "wgc",
+      "definition": "世界黄金协会的全部动态：黄金需求趋势报告、央行购金统计、ETF 持仓与金饰消费数据。"
     },
     {
-      "slug": "image-gen",
-      "name": "图像生成",
-      "group": "field",
-      "tags": [
-        "图像生成"
-      ],
-      "definition": "AI 画图的最前线：文生图模型迭代、图像编辑能力与创作工具生态的全部动态。"
+      "slug": "nbs",
+      "name": "中国国家统计局",
+      "group": "institution",
+      "entityId": "nbs",
+      "definition": "国家统计局的全部动态：CPI、PPI、PMI、工业增加值、社会消费品零售与固定资产投资等月度数据发布。"
     },
     {
-      "slug": "video",
-      "name": "AI 视频",
-      "group": "field",
-      "tags": [
-        "视频"
-      ],
-      "definition": "AI 视频生成与理解：文生视频模型、视频编辑工具与影视创作变革的追踪。"
+      "slug": "sge",
+      "name": "上海黄金交易所",
+      "group": "institution",
+      "entityId": "sge",
+      "definition": "上海黄金交易所的全部动态：Au99.99 与 Ag(T+D) 行情与成交量、延期合约持仓与国内金价溢价。"
     },
     {
-      "slug": "voice",
-      "name": "语音与音频",
-      "group": "field",
-      "tags": [
-        "语音"
-      ],
-      "definition": "AI 语音与音频的进展：语音合成、实时对话、音乐生成与音频理解的模型与产品。"
+      "slug": "opec",
+      "name": "欧佩克",
+      "group": "institution",
+      "entityId": "opec",
+      "definition": "欧佩克与欧佩克+的全部动态：减产与增产安排、配额执行、部长会议声明与产量调整。"
     },
     {
-      "slug": "embodied",
-      "name": "具身智能",
-      "group": "field",
-      "tags": [
-        "具身智能"
-      ],
-      "definition": "AI 走进物理世界：人形机器人、具身基础模型与真实环境操作能力的进展追踪。"
+      "slug": "united-states",
+      "name": "美国",
+      "group": "institution",
+      "entityId": "us",
+      "definition": "美国宏观与政策：非农与失业率、CPI 与 PCE、GDP、财政部与关税政策、白宫对商品与能源的表态。"
     },
     {
-      "slug": "on-device",
-      "name": "端侧 AI",
-      "group": "field",
-      "tags": [
-        "端侧"
-      ],
-      "definition": "跑在手机、电脑与边缘设备上的 AI：小模型、本地推理与端侧芯片的进展。"
+      "slug": "china",
+      "name": "中国",
+      "group": "institution",
+      "entityId": "cn",
+      "definition": "中国宏观与商品需求：统计局与海关数据、央行操作、房地产与基建对铜铝的拉动、官方储备变化。"
     },
     {
-      "slug": "open-source",
-      "name": "开源生态",
-      "group": "field",
-      "tags": [
-        "开源生态",
-        "开源/仓库"
-      ],
-      "definition": "开源模型、框架与仓库动态：权重开放、社区项目爆火、开源与闭源的力量消长。"
+      "slug": "eurozone",
+      "name": "欧元区",
+      "group": "institution",
+      "entityId": "eu",
+      "definition": "欧元区宏观：欧洲央行政策、欧元区通胀与就业、欧元的汇率与储备货币地位变化。"
     },
     {
-      "slug": "engineering",
-      "name": "部署工程",
-      "group": "field",
-      "tags": [
-        "部署/工程"
-      ],
-      "definition": "把模型跑起来的工程实践：推理优化、显存与成本、Serving 架构与基础设施选型。"
-    },
-    {
-      "slug": "data-training",
-      "name": "数据与训练",
-      "group": "field",
-      "tags": [
-        "数据/训练"
-      ],
-      "definition": "训练侧的门道：数据集构建、合成数据、预训练与后训练方法、算力与训练成本。"
-    },
-    {
-      "slug": "safety",
-      "name": "安全对齐",
-      "group": "field",
-      "tags": [
-        "安全/对齐"
-      ],
-      "definition": "AI 安全与对齐：越狱与防御、模型行为研究、安全评测与治理框架的进展。"
-    },
-    {
-      "slug": "mcp",
-      "name": "MCP 与工具调用",
-      "group": "field",
-      "tags": [
-        "MCP/工具调用"
-      ],
-      "definition": "模型连接外部世界的协议与实践：MCP 生态、function calling、工具链集成的动态。"
-    },
-    {
-      "slug": "model-releases",
-      "name": "模型发布",
-      "group": "genre",
-      "tags": [
-        "模型发布"
-      ],
-      "definition": "新模型的发布、开源与迭代：大模型厂商的旗舰更新、开源权重放出、性能与价格变化的第一时间记录。"
-    },
-    {
-      "slug": "product-updates",
-      "name": "产品更新",
-      "group": "genre",
-      "tags": [
-        "产品更新"
-      ],
-      "definition": "AI 产品与应用的功能上新、改版与商业化动态——谁家的产品变强了、变贵了、能用了。"
-    },
-    {
-      "slug": "papers",
-      "name": "论文研究",
-      "group": "genre",
-      "tags": [
-        "论文/研究"
-      ],
-      "definition": "值得读的 AI 论文与研究成果：架构创新、训练方法、能力测量与理论进展的精选解读。"
-    },
-    {
-      "slug": "benchmarks",
-      "name": "评测基准",
-      "group": "genre",
-      "tags": [
-        "评测/基准"
-      ],
-      "definition": "模型到底谁强：Benchmark 成绩、评测方法论争议与排行榜变化的持续记录。"
-    },
-    {
-      "slug": "tutorials",
-      "name": "教程实践",
-      "group": "genre",
-      "tags": [
-        "教程/实践"
-      ],
-      "definition": "拿来就能用的实操内容：提示词技巧、工作流搭建、工具用法与踩坑经验。"
-    },
-    {
-      "slug": "opinions",
-      "name": "大佬观点",
-      "group": "genre",
-      "tags": [
-        "大佬观点"
-      ],
-      "definition": "行业关键人物在想什么：创始人访谈、研究者论战、投资人判断的观点集合。"
-    },
-    {
-      "slug": "trends",
-      "name": "现象与趋势",
-      "group": "genre",
-      "tags": [
-        "现象/趋势"
-      ],
-      "definition": "正在发生的行业级变化：使用习惯迁移、能力涌现、社会影响与市场格局的观察。"
-    },
-    {
-      "slug": "industry",
-      "name": "行业动态",
-      "group": "genre",
-      "tags": [
-        "行业动态"
-      ],
-      "definition": "AI 行业的商业脉搏：融资并购、人事变动、合作与竞争、政策与市场信号。"
+      "slug": "official-data",
+      "name": "官方数据与持仓",
+      "group": "form",
+      "tags": ["数据/持仓"],
+      "definition": "官方统计、持仓报告、库存与产销数据的发布：CPI、非农、PMI、CFTC 持仓、EIA 库存、央行购金与 ETF 持仓。"
     },
     {
       "slug": "policy",
-      "name": "政策监管",
-      "group": "genre",
-      "tags": [
-        "政策/监管"
-      ],
-      "definition": "AI 相关政策法规与政府监管动态：立法进展、出口管制与全球治理框架的追踪。"
+      "name": "政策与央行决议",
+      "group": "form",
+      "tags": ["政策/央行"],
+      "definition": "央行、财政、监管与贸易政策的决定：利率决议、前瞻指引、缩表进度、关税与制裁措施。"
+    },
+    {
+      "slug": "supply-demand",
+      "name": "供需与产能",
+      "group": "form",
+      "tags": ["供需/产能"],
+      "definition": "矿山、冶炼、产能、开工率、库存与进出口的变化，以及罢工、事故与制裁造成的供给中断。"
+    },
+    {
+      "slug": "market-move",
+      "name": "行情与资金流",
+      "group": "form",
+      "tags": ["行情/价格"],
+      "aliases": ["股债/资金流"],
+      "definition": "以价格、涨跌幅、持仓与资金流本身为报道对象的材料，以及股指、收益率曲线与信用利差的变化。"
+    },
+    {
+      "slug": "geopolitics-trade",
+      "name": "地缘与贸易",
+      "group": "form",
+      "tags": ["地缘/贸易"],
+      "definition": "冲突、制裁、贸易摩擦与关税政策对具体商品供给、成本与避险买盘的传导。"
+    },
+    {
+      "slug": "macro-inflation",
+      "name": "通胀与宏观",
+      "group": "form",
+      "tags": ["宏观/通胀"],
+      "definition": "通胀与宏观经济的全部数据与解读：CPI、PCE、PPI、GDP、PMI、实际利率与美元指数的联动。"
+    },
+    {
+      "slug": "employment",
+      "name": "就业与经济",
+      "group": "form",
+      "tags": ["就业/经济"],
+      "definition": "就业与经济活动数据：非农、失业率、零售销售、工业增加值与固定资产投资。"
+    },
+    {
+      "slug": "institution-view",
+      "name": "机构观点",
+      "group": "form",
+      "tags": ["机构观点"],
+      "definition": "央行官员、投行与研究机构的观点、评级与前瞻判断。本站只转述并标明出处，不给投资建议。"
+    },
+    {
+      "slug": "analysis",
+      "name": "分析与解读",
+      "group": "form",
+      "tags": ["分析/解读"],
+      "aliases": ["策略复盘"],
+      "definition": "以判断与论证为主的内容：策略复盘、供需平衡表解读、走势归因与口径解释。"
     }
   ]
 }

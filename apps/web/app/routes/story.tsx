@@ -4,7 +4,7 @@ import { Link, useLoaderData, useLocation } from "react-router";
 import type { Route } from "./+types/story";
 import type { StoryDetail, StoryReportView } from "@aihot/contracts/site";
 import { SITE } from "@aihot/site";
-import { edgeTtl, loadOr404, pageExpiresAt } from "../lib/api.server";
+import { apiGet, edgeTtl, loadOr404, pageExpiresAt } from "../lib/api.server";
 import { cachedLoader } from "../lib/page-reuse";
 import { breadcrumbLd, pageMeta, titled } from "../lib/seo";
 import { beijingDate, beijingTime } from "@aihot/contracts/time";
@@ -16,6 +16,10 @@ import { Badge, SelectedBadge } from "../components/ui/Badge";
 import { PillTabs } from "../components/ui/Tabs";
 import { Select } from "../components/ui/Controls";
 import { IconArrowLeft, IconChevronRight, IconClock, IconDoc, IconUsers } from "../components/icons";
+import { ImpactChain, readImpact } from "../features/quotes/ImpactChain";
+import { instrumentsOfCodes, ReferenceTable } from "../features/quotes/ReferenceTable";
+import { QUOTE_LABEL, type QuotesResponse } from "../features/quotes/model";
+import { QuoteTile } from "../features/quotes/QuoteTile";
 import { PhoneBar } from "../components/shell/PhoneBar";
 import type { Screen } from "../components/shell/screens";
 
@@ -25,7 +29,15 @@ export const clientLoader = cachedLoader<typeof loader>();
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const story = await loadOr404<StoryDetail>(`/api/site/stories/${encodeURIComponent(params.publicId)}`, { signal: request.signal, merged: (id) => `/story/${id}` });
-  return { story, expiresAt: pageExpiresAt(300) };
+  // A missing snapshot endpoint must not 404 the event page. The page is about the reporting; the
+  // prices are an addition to it.
+  let quotes: QuotesResponse | null = null;
+  try {
+    quotes = await apiGet<QuotesResponse>("/api/site/quotes", { signal: request.signal });
+  } catch {
+    quotes = null;
+  }
+  return { story, quotes, expiresAt: pageExpiresAt(300) };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -157,7 +169,7 @@ type Order = "desc" | "asc";
 const viewCache = sessionCache<{ savedAt: number; filter: Filter; order: Order }>("aihot:story-view:", 30 * 60 * 1000);
 
 export default function StoryPage() {
-  const { story } = useLoaderData<typeof loader>();
+  const { story, quotes } = useLoaderData<typeof loader>();
   const entry = useLocation().key;
   const [filter, setFilter] = useState<Filter>(() => viewCache.peek(entry)?.filter ?? "all");
   const [order, setOrder] = useState<Order>(() => viewCache.peek(entry)?.order ?? "desc");
@@ -210,6 +222,16 @@ export default function StoryPage() {
     setFilter("official");
     goSection("reports");
   };
+  // The impact chain is extracted upstream and may be absent on older events; the panel then does
+  // not render at all, rather than showing an empty box.
+  const impact = readImpact((story as { impact?: unknown }).impact);
+  // Only the instruments this event's own reports name, so the panel never implies a link the
+  // reporting did not make. A quote with no matching instrument is not shown.
+  const eventCodes = new Set(impact.map((i) => i.code));
+  const panelQuotes = quotes
+    ? { ...quotes, quotes: quotes.quotes.filter((q) => eventCodes.has(QUOTE_LABEL[q.symbol].code)) }
+    : null;
+  const hasPrices = Boolean(panelQuotes && panelQuotes.quotes.some((q) => q.price !== null));
 
   return (
     <div className="mx-auto max-w-[var(--page-max-reading)] pb-10">
@@ -294,6 +316,12 @@ export default function StoryPage() {
               </div>
             )}
           </Panel>
+
+          {impact.length > 0 && (
+            <Panel title="影响链条" sub="这个事件推着哪些品种走、往哪个方向、多长时间兑现。" className="order-2">
+              <ImpactChain links={impact} />
+            </Panel>
+          )}
 
           {story.developments.length > 1 && (
             <Panel title="事件进展" sub={`${story.developments.length} 个进展`} className="order-3" right={
@@ -390,6 +418,29 @@ export default function StoryPage() {
         </div>
 
         <aside className="order-2 flex min-w-0 flex-col gap-4 lg:order-none lg:gap-5">
+          {/* The only framed panel on the site, and at most one per screen. A frame costs visual
+              budget, so it is spent on the one block where a reader compares a number against the
+              event they are reading; everywhere else prices go in unframed cells. */}
+          {hasPrices && panelQuotes && (
+            <section aria-label="相关品种行情" className="card overflow-hidden p-0">
+              <h2 className="border-b border-line-soft px-5 py-4 text-[14px] font-bold text-ink lg:px-[22px]">相关品种行情</h2>
+              <div className="scrollbar-none flex overflow-x-auto">
+                {panelQuotes.quotes.map((q, i) => (
+                  <div key={q.symbol} className={i === 0 ? "" : "border-l border-line-soft"}>
+                    <QuoteTile quote={q} />
+                  </div>
+                ))}
+              </div>
+              <p className="px-5 pb-4 pt-3 text-[11px] leading-relaxed text-ink-4 lg:px-[22px]">
+                每日快照，非实时报价。涨跌幅为两次快照之间的差值。
+              </p>
+            </section>
+          )}
+          {!hasPrices && impact.length > 0 && (
+            <RailCard title="相关品种">
+              <ReferenceTable instruments={instrumentsOfCodes(impact.map((i) => i.code))} />
+            </RailCard>
+          )}
           {observed && (
             <RailCard title="为什么热">
               <p className="text-[12.5px] leading-[1.75] text-ink-3">

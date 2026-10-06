@@ -31,8 +31,8 @@ export interface HotEntry {
   participants: Array<{ name: string; kind: "editorial" | "signal"; tier?: string }>;
 }
 
-/** Participants in the 精选组 order: T1 before T1.5 before T2, then everything else. */
-const TIER_ORDER = ["T1", "T1_5", "T2"];
+/** Participants in the 精选组 order: first-party and official data before official accounts, then media, then the rest. */
+const TIER_ORDER = ["T1", "T1_5", "T_DATA", "T2", "T2_OP"];
 export function tierRank(tier: string | undefined): number {
   const i = TIER_ORDER.indexOf(tier ?? "");
   return i < 0 ? TIER_ORDER.length : i;

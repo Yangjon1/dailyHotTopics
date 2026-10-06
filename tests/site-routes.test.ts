@@ -37,7 +37,7 @@ test("agents read Markdown answers under /api/v1/agent", async () => {
   const paths = ["/latest", "/search", "/hot", "/daily"];
   for (const path of paths) assert.ok(guide.body.includes(`${config.siteUrl}/api/v1/agent${path}`), path);
   const answers = [
-    "/api/v1/agent/latest", "/api/v1/agent/latest?window=7d&mode=all&category=paper&limit=5", "/api/v1/agent/search?q=OpenAI", "/api/v1/agent/hot",
+    "/api/v1/agent/latest", "/api/v1/agent/latest?window=7d&mode=all&category=macro&limit=5", "/api/v1/agent/search?q=%E7%BE%8E%E8%81%94%E5%82%A8", "/api/v1/agent/hot",
   ];
   for (const url of answers) {
     const res = await get(url);

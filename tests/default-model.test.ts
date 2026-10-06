@@ -26,8 +26,8 @@ const provider = await stub((_hit, req) => {
   const content =
     step === "prefilter" ? { label: "PASS", reason: "测试" }
     : step === "score" ? { attentionScore: SELECTING_SCORE }
-    : step === "understand" ? { itemType: "product_launch", authorRole: "principal", tags: ["产品更新"], editorialJudgment: "理由", titleZh: "一个模型的标题", summaryZh: "一个模型写的摘要。第二句。" }
-    : step === "structure" ? { category: "ai-products", tags: ["产品更新"], subjects: [], fact: null }
+    : step === "understand" ? { itemType: "policy_event", authorRole: "principal", tags: ["政策/央行"], editorialJudgment: "理由", titleZh: "一份报告的标题", summaryZh: "一份报告的摘要。第二句。" }
+    : step === "structure" ? { category: "macro", tags: ["政策/央行"], subjects: [], fact: null }
     : "title_zh: 标题\nsummary_zh: 摘要。";
   return { id: `stub-${seen.length}`, choices: [{ message: { content: typeof content === "string" ? content : JSON.stringify(content) } }], usage: { prompt_tokens: 1, completion_tokens: 1 } };
 });
@@ -44,12 +44,12 @@ after(async () => {
 
 test("one model runs the prefilter, both scores, the writing and the structure", async () => {
   const { articleId } = await upsertMaterial({
-    sourceId: SOURCE, url: `https://example.com/${T}`, title: `A product launch ${T}`, bodyText: `A company launched a product with pricing and availability. ${T} `.repeat(6),
+    sourceId: SOURCE, url: `https://example.com/${T}`, title: `央行政策公告 ${T}`, bodyText: `某央行公布了利率决定与相关安排。${T} `.repeat(6),
     bodyStatus: "ok", via: "fetch", publishedAt: new Date(),
   } as never);
   const res = await analyzeArticle(articleId);
   assert.equal(res!.output!.selected, true);
-  assert.equal(res!.output!.titleZh, "一个模型的标题");
+  assert.equal(res!.output!.titleZh, "一份报告的标题");
   assert.deepEqual(seen.map((r) => r.step).sort(), ["prefilter", "score", "score", "structure", "understand"]);
   assert.ok(seen.every((r) => r.model === "one-model"), "every request names the configured model");
   const services = await sql<{ service: string }[]>`SELECT DISTINCT service FROM receipts WHERE subject LIKE ${`article:${articleId}%`}`;

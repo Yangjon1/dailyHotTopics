@@ -16,10 +16,10 @@ test("topic lists and pool counts share the exact membership predicate", async (
   const now = new Date(+at + 1000);
   const cases = [
     { title: "", original: null, tags: ["Agent"], topics: ["agent"] },
-    { title: "Anthropic Agent", original: null, tags: [], topics: [] },
-    { title: "", original: null, tags: ["entity:anthropic"], topics: ["anthropic"] },
-    { title: "Unrelated", original: null, tags: ["entity:anthropic", "entity:openai"], topics: [] },
-    { title: "Unrelated", original: "ANTHROPIC launches a model", tags: ["entity:anthropic", "entity:openai"], topics: ["anthropic"] },
+    { title: "黄金基金持仓", original: null, tags: [], topics: [] },
+    { title: "", original: null, tags: ["entity:cftc"], topics: ["cftc"] },
+    { title: "Unrelated", original: null, tags: ["entity:cftc", "entity:fed"], topics: [] },
+    { title: "Unrelated", original: "the CFTC published its positions report", tags: ["entity:cftc", "entity:fed"], topics: ["cftc"] },
     { title: "Metadata", original: null, tags: ["entity:meta", "entity:openai"], topics: [] },
     { title: "发布Meta的新模型", original: null, tags: ["entity:meta", "entity:openai"], topics: ["meta"] },
     { title: "Unselected", original: null, tags: ["Agent", "entity:anthropic"], topics: ["agent", "anthropic"], selected: false },

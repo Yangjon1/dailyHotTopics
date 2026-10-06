@@ -162,7 +162,7 @@ export default function FeedbackPage() {
     return (
       <ReadingLayout>
         <div className="card px-6 py-14 text-center">
-          <div className="anim-pop-in mx-auto flex size-14 items-center justify-center rounded-full bg-accent text-accent-contrast">
+          <div className="anim-confirm mx-auto flex size-14 items-center justify-center rounded-full bg-accent text-accent-contrast">
             <IconCheck size={26} />
           </div>
           <h1 className="mt-6 text-[22px] font-semibold text-ink">收到了，谢谢你</h1>

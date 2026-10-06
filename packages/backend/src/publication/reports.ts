@@ -383,6 +383,9 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
       ...(c.metrics?.firstPartyEvents !== undefined ? { firstPartyEvents: all.filter((i) => i.firstParty).length } : {}),
       ...(c.metrics?.sourcesCount !== undefined ? { sourcesCount: citedSources(c, kind === "daily" ? "daily" : "periodic", avail) } : {}),
     },
+    // The official tally, already worded where it is counted (compose.ts officialHeadline). Carried
+    // through as it is stored: an issue composed before the field existed simply has none.
+    official: c.official ?? null,
     readingMinutes: readingMinutes(text),
     prev,
     next,

@@ -69,9 +69,15 @@ export async function stub(answer: (hit: number, req: { url: string; body: strin
 }
 
 /**
- * The embeddings provider as a stub of its own (DASHSCOPE_BASE_URL), so chat stubs count only their
- * calls. A text's vector marks the pairs of adjacent characters it contains, hashed into the model's
- * 1,024 dimensions: texts that share wording come out close, texts that share none do not.
+ * The embeddings provider as a stub of its own, so chat stubs count only their calls. A text's vector
+ * marks the pairs of adjacent characters it contains, hashed into the model's 1,024 dimensions: texts
+ * that share wording come out close, texts that share none do not.
+ *
+ * Both credential pairs are pointed at the stub on purpose. `providers/embeddings.ts:9` decides which
+ * pair to read with `own = !!credential("models", "EMBEDDING_API_KEY")`, evaluated once when the
+ * module loads: with only DASHSCOPE_* stubbed, a site that sets EMBEDDING_* in its environment took
+ * the `own` branch and called the real paid endpoint while its tests reported success. So a stub that
+ * only covered the framework's default would let a customized deployment reach the network.
  */
 export async function embeddingsStub() {
   const vector = (text: string) => {
@@ -83,6 +89,10 @@ export async function embeddingsStub() {
   const server = await stub((_hit, req) => ({ data: (JSON.parse(req.body).input as string[]).map((text, index) => ({ index, embedding: vector(text) })) }));
   process.env.DASHSCOPE_BASE_URL = `${server.url}/v1`;
   process.env.DASHSCOPE_API_KEY = "test-key";
+  // The same stub for the self-configured pair, so a site that sets EMBEDDING_* (which makes
+  // embeddings.ts take its `own` branch) still resolves to the stub rather than a live endpoint.
+  process.env.EMBEDDING_BASE_URL = `${server.url}/v1`;
+  process.env.EMBEDDING_API_KEY = "test-key";
   return server;
 }
 

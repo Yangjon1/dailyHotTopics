@@ -108,7 +108,7 @@ function FilterSheet({ open, onClose, base, active }: { open: boolean; onClose: 
                 className={`-mx-2 flex h-12 items-center justify-between rounded-tile px-2 text-[16px] transition-colors active:bg-bg-sunk ${on ? "font-semibold text-accent" : "text-ink"}`}
               >
                 {o.label}
-                {on && <IconCheck size={19} strokeWidth={2.2} />}
+                {on && <IconCheck size={19} />}
               </Link>
             </li>
           );
@@ -129,13 +129,13 @@ export function ActiveFilters({ base, category, channel, tag }: { base: string; 
       {label && (
         <Link to={hrefWith(base, params, { category: null, channel: null })} aria-label={`取消筛选：${label}`} className={chip}>
           只看{label}
-          <IconClose size={14} strokeWidth={2} />
+          <IconClose size={14} />
         </Link>
       )}
       {tag && (
         <Link to={hrefWith(base, params, { tag: null })} aria-label={`取消标签：${tag}`} className={chip}>
           <span className="truncate">#{tag}</span>
-          <IconClose size={14} strokeWidth={2} className="shrink-0" />
+          <IconClose size={14} className="shrink-0" />
         </Link>
       )}
     </div>

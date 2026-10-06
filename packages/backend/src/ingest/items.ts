@@ -21,6 +21,12 @@ interface ItemIn {
   url?: unknown;
   publishedAt?: unknown;
   author?: unknown;
+  /**
+   * The article's own text. Scripted sources (push an official dataset, for example) have no page to
+   * fetch, so this is the only way their content reaches the model: the analysis step reads
+   * `articles.body_text` and never sees `raw`. Absent, the item is judged on its title alone.
+   */
+  body?: unknown;
   raw?: { _aihot?: { backfill?: boolean; baseline?: boolean } } & Record<string, unknown>;
 }
 
@@ -58,6 +64,11 @@ export async function ingestItems(body: { sourceId?: unknown; sourceName?: unkno
       title,
       author: typeof it.author === "string" ? it.author.slice(0, 200) : null,
       publishedAt: published && Number.isFinite(published.getTime()) ? published : null,
+      // A pushed body is authoritative for that item: there is no page behind a scripted url, so this
+      // is the material the model will judge. `ok` keeps the collector from trying to fetch a host
+      // that does not exist.
+      bodyText: typeof it.body === "string" && it.body.trim() ? it.body.trim() : null,
+      bodyStatus: typeof it.body === "string" && it.body.trim() ? "ok" : undefined,
       raw: it.raw ?? null,
       via: "ingest",
       backfill: flags.backfill ? "reported-backfill" : flags.baseline ? "reported-baseline" : null,

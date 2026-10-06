@@ -1,10 +1,9 @@
 import { Link } from "react-router";
 import type { HotStripEntry } from "@aihot/contracts/site";
 import { IconArrowRight, IconMinus, IconTrendDown, IconTrendUp } from "../../components/icons";
-import { Faces } from "../hot/Faces";
 
-// As on the original list: the top three in the ranking colours at the heaviest weight.
-const RANK_COLOR = ["text-[15px] font-black text-rank-1", "text-[15px] font-black text-rank-2", "text-[15px] font-black text-rank-3"];
+// As on the original list: the top three in the ranking colours, one step heavier than the rest.
+const RANK_COLOR = ["text-[14px] font-bold text-rank-1", "text-[14px] font-bold text-rank-2", "text-[14px] font-bold text-rank-3"];
 
 function hrefOf(e: HotStripEntry): string {
   return e.storyPublicId ? `/story/${e.storyPublicId}` : e.itemId ? `/items/${e.itemId}` : "/hot";
@@ -12,25 +11,30 @@ function hrefOf(e: HotStripEntry): string {
 
 /** Where the heat is heading, as a small arrow (a "新" mark for a story new to the ranking). */
 function TrendMark({ trend }: { trend: HotStripEntry["trend"] }) {
-  if (trend === "up") return <IconTrendUp size={14} strokeWidth={2.2} className="text-hot" aria-label="热度上升" />;
-  if (trend === "down") return <IconTrendDown size={14} strokeWidth={2.2} className="text-ink-4" aria-label="热度回落" />;
+  if (trend === "up") return <IconTrendUp size={14} className="text-hot" aria-label="热度上升" />;
+  if (trend === "down") return <IconTrendDown size={14} className="text-ink-4" aria-label="热度回落" />;
   if (trend === "new") return <span className="rounded-full bg-accent-soft px-1.5 text-[10.5px] font-semibold leading-4 text-accent">新</span>;
   if (trend === "unknown") return null; // sources behind on collection: no comparison to show
-  return <IconMinus size={14} strokeWidth={2.2} className="text-ink-4" aria-label="热度持平" />;
+  return <IconMinus size={14} className="text-ink-4" aria-label="热度持平" />;
 }
 
 /**
  * The top of the hot ranking on the home page, kept quiet: a live dot, coloured ranks and titles, then
- * columns of fixed width so every row lines up — who is talking (精选组 faces, from sm), "N 热度" and an arrow for
- * where it is heading. The whole row lights up on hover. Phones show the top three in one line each, so
- * the feed starts on the first screen.
+ * a fixed-width column of heat so every row lines up, and an arrow for where it is heading. The whole
+ * row lights up on hover. Phones show the top three in one line each, so the feed starts on the
+ * first screen.
+ *
+ * There are no participant avatars here. A row of faces says "a community is talking about this",
+ * and this site has no community: what it has is a count of independent sources, which is the
+ * number in the method note and the one worth showing. Avatars of the same two or three outlets on
+ * every row would be decoration pretending to be evidence.
  */
 export function HotTopics({ entries }: { entries: HotStripEntry[] }) {
   if (entries.length === 0) return null;
   return (
     <section
       aria-labelledby="hot-topics"
-      className="card relative mb-4 overflow-hidden bg-[radial-gradient(120%_90%_at_100%_0%,var(--hot-soft),transparent_55%)] px-3.5 pb-1 pt-2.5 lg:mb-6 lg:px-5 lg:pb-2 lg:pt-3.5"
+      className="card relative mb-4 overflow-hidden bg-[radial-gradient(120%_90%_at_100%_0%,var(--hot-soft),transparent_55%)] px-3.5 pb-1 pt-2.5 lg:mb-5 lg:px-5 lg:pb-2 lg:pt-3.5"
     >
       <div className="flex items-center justify-between lg:mb-1">
         <h2 id="hot-topics" className="flex items-center gap-2 text-[14px] font-semibold text-ink">
@@ -49,13 +53,10 @@ export function HotTopics({ entries }: { entries: HotStripEntry[] }) {
           <li key={e.rank} className={i >= 3 ? "max-sm:hidden" : undefined}>
             <Link viewTransition
               to={hrefOf(e)}
-              className="group -mx-2 grid min-h-10 sm:min-h-0 grid-cols-[20px_minmax(0,1fr)_auto] items-center gap-x-3 rounded-tile px-2 py-1.5 transition-colors hover:bg-bg-sunk/70 active:bg-bg-sunk sm:grid-cols-[20px_minmax(0,1fr)_120px_64px_20px] sm:gap-x-4 sm:py-2 dark:hover:bg-bg-muted/40"
+              className="group -mx-2 grid min-h-10 sm:min-h-0 grid-cols-[20px_minmax(0,1fr)_auto] items-center gap-x-3 rounded-tile px-2 py-1.5 transition-colors hover:bg-bg-sunk/70 active:bg-bg-sunk sm:grid-cols-[20px_minmax(0,1fr)_64px_20px] sm:gap-x-4 sm:py-2 dark:hover:bg-bg-muted/40"
             >
               <span className={`num text-center leading-none ${RANK_COLOR[i] ?? "text-[14px] font-bold text-rank-rest"}`}>{e.rank}</span>
               <span className="line-clamp-1 min-w-0 text-[14.5px] font-semibold leading-[1.5] text-ink transition-colors group-hover:text-accent lg:text-[14px]">{e.title}</span>
-              <span className="hidden justify-end sm:flex">
-                <Faces participants={e.participants} total={e.participantCount} size={20} interactive={false} />
-              </span>
               <span className="flex items-center justify-end gap-2.5 sm:contents">
                 <span className="whitespace-nowrap text-right text-[12.5px] text-ink-4" title="热度指数">
                   <span className="num text-[13.5px] font-semibold text-ink-2">{Math.round(e.heat)}</span> 热度

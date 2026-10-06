@@ -17,6 +17,7 @@ import { itemAvailability } from "@aihot/backend/publication/availability";
 import { listTopicSummaries, loadTopicPage, topicBrowseLinks } from "@aihot/backend/publication/topics";
 import { registerFeedback } from "./feedback.ts";
 import { loadHot, loadStoryDetail, resolveStory } from "@aihot/backend/publication/stories";
+import { loadQuotes } from "@aihot/backend/publication/quotes";
 import { listReports, loadReport, reportNavigation, loadReportNavigation, loadReportMonth, type ReportKind } from "@aihot/backend/publication/reports";
 import { looseQuery, sendJsonWithEtag, sendProblem } from "../http/respond.ts";
 
@@ -153,6 +154,14 @@ export function registerSite(app: FastifyInstance) {
   app.get("/api/site/hot", siteHandler(async (req, reply) => {
     const data = await loadHot();
     return sendJsonWithEtag(req, reply, data, { etagPrefix: "hot", cacheControl: "public, max-age=30, s-maxage=30" });
+  }));
+
+  // The daily price band. A quiet cache: a price that is an hour old is a different number, and the
+  // band is read on every home page view. A failure here answers 503 like every other site route and
+  // the page drops the whole band rather than showing half of it.
+  app.get("/api/site/quotes", siteHandler(async (req, reply) => {
+    const data = await loadQuotes();
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "quotes", cacheControl: "public, max-age=60, s-maxage=60" });
   }));
 
   app.get("/api/site/stories/:publicId", siteHandler(async (req, reply) => {

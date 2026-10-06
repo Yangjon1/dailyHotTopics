@@ -19,12 +19,12 @@ test("llms and sitemap build from current topic scope rather than a cached direc
     await sql`INSERT INTO articles (id,source_id,identity_key,url,title,timeline_at,discovered_at)
       VALUES (${id},${source},${id},${`https://example.org/${id}`},'MiniMax',now(),now())`;
     await sql`INSERT INTO publications (article_id,source_id,title,summary,url,timeline_at,discovered_at,sort_at,selected,eligible,visible_after,tags,channel,category)
-      VALUES (${id},${source},'MiniMax 发布模型','Summary',${`https://example.org/${id}`},now(),now(),now(),true,true,now() - interval '1 minute',ARRAY['entity:minimax'],'news','ai-models')`;
+      VALUES (${id},${source},'世界黄金协会发布需求报告','Summary',${`https://example.org/${id}`},now(),now(),now(),true,true,now() - interval '1 minute',ARRAY['entity:wgc'],'news','precious-metals')`;
   }
-  assert.equal((await topicPageCounts()).find((topic) => topic.slug === "minimax")!.indexable, true);
+  assert.equal((await topicPageCounts()).find((topic) => topic.slug === "wgc")!.indexable, true);
   await sql`UPDATE publications SET visibility = 'withdrawn' WHERE source_id = ${source}`;
-  assert.ok(!(await loadLlmsAvailability()).topics.some((topic) => topic.slug === "minimax"));
+  assert.ok(!(await loadLlmsAvailability()).topics.some((topic) => topic.slug === "wgc"));
   const sitemap = await app.inject("/sitemap.xml");
   assert.equal(sitemap.statusCode, 200);
-  assert.ok(!sitemap.body.includes("/topics/minimax</loc>"));
+  assert.ok(!sitemap.body.includes("/topics/wgc</loc>"));
 });

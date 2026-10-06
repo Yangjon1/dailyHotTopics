@@ -87,7 +87,7 @@ function BackButton({ to, label }: BackTarget) {
       }}
       className="flex h-11 min-w-11 items-center pl-1 pr-2 text-[16px] text-accent transition-opacity active:opacity-50"
     >
-      <IconChevronLeft size={25} strokeWidth={2.1} />
+      <IconChevronLeft size={25} />
       <span className="max-w-[7em] truncate">{text}</span>
     </button>
   );

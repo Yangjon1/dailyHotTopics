@@ -1,296 +1,398 @@
 {
   "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里新建、修改和暂停。字段说明见 docs/customize.md。",
+  "$metalsMacro": "配置纪律（每条都有代价，务必读 docs/sources.md 与 Spec §10.3）：① interval_minutes 必须密于报告期，超过 48h 会走 backfillReason=stale-on-discovery 静默归档，不报错不告警但内容永不出来；② urlTemplate / url 里绝不能放会变的签名参数（时间戳、token），identityKeyForUrl 规范化后每次都不同，会无限增长且每次全管道重跑；③ 官方统计源排在媒体源之前，跨源只记发现不修订；④ site_fulltext / syndicate_fulltext 保持 false，来源未明确允许转载；⑤ 不采集无 pubDate 的源（MarketWatch / FT commodities / Economist / Mining.com 实测 200 但无日期；WSJ 已停更；Reuters 401；BLS/LME/Kitco 403 或 404，全部放弃）。",
   "sources": [
     {
-      "id": "rss-openai-news",
-      "name": "OpenAI News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://openai.com/news/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "ext-treasury-yield",
+      "name": "美国财政部国债收益率曲线",
+      "kind": "external",
+      "config": {},
       "tier": "T1",
-      "owner_entity_id": "openai",
+      "owner_entity_id": "us-treasury",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-google-deepmind",
-      "name": "Google DeepMind",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://deepmind.google/blog/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-google-research",
-      "name": "Google Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://research.google/blog/rss/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": "google",
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 720,
       "tags": [
         "官方",
-        "研究"
+        "美债收益率",
+        "利率",
+        "宏观"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-06 实测接入。美国财政部 Daily Treasury Par Yield Curve Rates，**免 key CSV**，一次给全 14 个期限（1 月至 30 年），是全站唯一能给出完整收益率曲线的免费官方源。由 scripts/fetch-treasury.ts 推入。**与 FRED 的关键区别**：财政部 CSV 的 Date 字段就是**真实交易日**（如 10/05/2026），不是数据归属期，所以 publishedAt 直接用它，不需要像 FRED 那样推算发布延迟，也就没有「早于真实发布被 48 小时门槛静默归档」的风险。两个坑已在脚本处理：(1) **年份写死在 URL 路径里**（/daily-treasury-rates.csv/{year}/all），跨年会 404，脚本按当前日期算年份并同时尝试前一年；(2) 日期格式是 MM/DD/YYYY 而非 ISO，不转的话排序会错。脚本只取最近 3 个交易日，更早的已进过日报再推是噪音。"
     },
     {
-      "id": "rss-hugging-face",
-      "name": "Hugging Face Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
+      "id": "ext-fred-macro",
+      "name": "美联储 FRED 宏观数据",
+      "kind": "external",
+      "config": {},
       "tier": "T1",
-      "owner_entity_id": "hugging-face",
+      "owner_entity_id": "federal-reserve",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
         "官方",
-        "开源"
+        "宏观",
+        "利率",
+        "美元指数",
+        "原油"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-06 实测接入。FRED 宏观指标，共 13 个序列：10年期实际利率DFII10（黄金定价直接因子）、10年期名义 DGS10、2年期 DGS2、期限利差 T10Y2Y、盈亏平衡通胀 T10YIE、美元指数 DTWEXBGS/DTWEXAFEGS、黄金波动率 GVZCLS、WTI 原油 DCOILWTICO、金融状况 NFCI/ANFCI、全球铜价 PCOPPUSDM、铝价 PALUMUSDM。由 scripts/fetch-fred.ts 推入。**fredgraph.csv路径免 key**（api.stlouisfed.org 才要 key）。三个坑已在脚本里处理：(1) observation_date 是数据归属期不是发布日，脚本按各序列的官方发布延迟推算publishedAt，否则会被 48 小时门槛静默归档；(2) 返回 CSV 还是 ZIP 取决于是否混合频率，脚本按频率分6 组请求并判 Content-Type；(3) 坏 ID 会让整批变成 HTML 错误页，脚本校验第一行表头。"
     },
     {
-      "id": "rss-microsoft-research",
-      "name": "Microsoft Research",
-      "kind": "rss",
+      "id": "web-pboc-announce",
+      "name": "中国人民银行公告",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "url": "http://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+        "parseMode": "html",
+        "itemSelector": "td[height='22']",
+        "titleSelector": "a",
+        "publishedAtSelector": "span.hui12",
+        "allowUrlPrefixes": [
+          "http://www.pbc.gov.cn/goutongjiaoliu/"
+        ]
       },
       "tier": "T1",
-      "owner_entity_id": "microsoft",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 360,
       "tags": [
         "官方",
-        "研究"
+        "央行",
+        "中国"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 由 PM 实测 20 条、日期覆盖 100%。**itemSelector 必须是 td[height='22']，不能用 font.newslist_style**——日期在 <font> 的兄弟 span.hui12 上：同一批链接用 font → 20 条可用但0% 日期，用 td → 20 条可用100% 日期，差 100%。这是本次最容易踩的坑。\n\n**2026-10-06 复测更正**：初测见 302，据此以为框架不跟随跨域重定向而停用。**这个判断是错的**——`lib/http-fetch.ts:53-56` 明确「手动跟随重定向，让每一跳都过 SSRF 防护」，`redirectPolicy: \"same-origin\"` 是可选策略而非默认，只有 `json-list.ts:156` 显式设了它；`rss.ts:151` 的 fetchListing 不传该参数，所以 302 会被正常跟随。**已恢复启用**，下次抓取时再确认条目数。",
+      "enabled": true
     },
     {
-      "id": "rss-nvidia-blog",
-      "name": "NVIDIA Blog",
+      "id": "rss-cnbc-energy",
+      "name": "CNBC 能源",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
+        "feedUrl": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19836790",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 20
         }
       },
-      "tier": "T1",
-      "owner_entity_id": "nvidia",
+      "tier": "T2",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
-        "官方"
+        "媒体",
+        "能源",
+        "原油"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 实测**不可用**：search.cnbc.com 的 id=19836790 返回 HTTP 200 但 **items=0（空 feed）**，框架报 'not an RSS/Atom document'。已逐个试了 7 个 CNBC feed id（15839135=Nvidia 业绩、20910258=人口、10000642=汽车零件、10000647=软饮、10000115=房地产），**CNBC 没有能源/大宗商品 feed**。原油与天然气主题目前无信源——PM 报告称此源可用，实测不成立，已停用。\n\n**2026-10-06 已停用**：2026-10-06 复测 404（响应 556KB HTML），架构师独立实测也确认 items=0。CNBC 没有能源/大宗商品 feed。",
+      "enabled": false
     },
     {
-      "id": "rss-aws-ml",
-      "name": "AWS Machine Learning Blog",
-      "kind": "rss",
+      "id": "web-cnbc-gold",
+      "name": "CNBC 黄金",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "url": "https://www.cnbc.com/gold/",
+        "parseMode": "html",
+        "itemSelector": "div.ItemListCell-item",
+        "linkSelector": "a",
+        "titleSelector": "a span",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.cnbc.com/2026/",
+          "https://www.cnbc.com/2025/"
+        ]
       },
-      "tier": "T1",
-      "owner_entity_id": null,
+      "tier": "T2",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
-        "官方",
-        "教程"
+        "媒体",
+        "黄金",
+        "央行购金"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 实测**不可用**：框架报 'no items matched (html)'。原因是 PM 的 itemSelector 'div.ItemListCell-item' 取自**浏览器渲染后的 DOM**，而框架的 html 模式不执行 JavaScript，抓到的原始 HTML 里该类名 0 个。黄金内容改由 WGC（T1 官方）+ Kitco 覆盖。\n\n**2026-10-06 已停用**：2026-10-06 复测：HTTP 200 / 859KB，但这是 JS 渲染页，原始 HTML 里 `ItemListCell-item` 匹配 0 个、`<time>` 0 个。框架 html 模式不执行 JavaScript，选择器抓不到。注意 `RecaptchaAcknowledgement` 只是正常页面的 CSS 类名，不要据此判WAF。",
+      "enabled": false
     },
     {
-      "id": "rss-github-ai",
-      "name": "GitHub Blog · AI & ML",
-      "kind": "rss",
+      "id": "web-kitco-news",
+      "name": "Kitco 贵金属新闻",
+      "kind": "web_list",
       "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "url": "https://www.kitco.com/news/",
+        "parseMode": "html",
+        "itemSelector": "div.flex.flex-col",
+        "linkSelector": "a[href^='/news/article/']",
+        "titleSelector": "a[href^='/news/article/'] span",
+        "publishedAtSelector": "time",
+        "allowUrlPrefixes": [
+          "https://www.kitco.com/news/article/"
+        ]
       },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mistral",
-      "name": "Mistral AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://mistral.ai/news/rss",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "tags": [
-        "官方"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-bair",
-      "name": "Berkeley AI Research",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T1",
-      "owner_entity_id": null,
+      "tier": "T2",
       "participation_mode": "editorial",
       "interval_minutes": 180,
       "tags": [
-        "研究"
+        "媒体",
+        "贵金属",
+        "金银铂钯"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "2026-10-06 修正：URL 改为不带尾斜杠的终态 https://www.kitco.com/news（带斜杠会 308）。**注意**：初测以为框架不跟随 308 而判断此源不可用，那个判断是错的（见 web-pboc-announce 的说明）；改 URL 是为了直接命中终态、少一跳，不是因为框架跟不动。实测终态 URL 解析出 15 条三要素齐全的条目，实测用框架真实 UA 解析出 15 条三要素齐全的条目（日期 + 链接 + 标题），内容全部是金银主题。结构：<a href=\"/news/article/YYYY-MM-DD/slug\"><span>标题</span></a> ... <time dateTime=\"...-0400\">，**time 前面是摘要 div，不是紧跟 a**，写选择器时不要假设两者相邻。2026-10-05 首次接入时我写的「实测严格匹配 6 条」偏保守，真实是 15 条。"
     },
     {
-      "id": "rss-the-verge-ai",
-      "name": "The Verge · AI",
+      "id": "rss-silverinstitute",
+      "name": "白银协会",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+        "feedUrl": "https://silverinstitute.org/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 10
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 720,
+      "tags": [
+        "官方",
+        "白银",
+        "供需"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 实测：原地址带尾斜杠会 301，跳转后 200 / 12.8KB / 10 条，但**响应耗时 5.2 秒**，首次抓取会超时（实测报 The operation was aborted due to timeout）。已改为无斜杠的规范地址。这是月刊，10 条里中英西三语重复约 4 条实际内容，interval_minutes 设 720。**若仍超时，说明该源在当前网络下不可靠，可停用**——白银页由 Kitco 兜底。"
+    },
+    {
+      "id": "rss-fx-h10",
+      "name": "美联储 H.10 汇率",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.federalreserve.gov/feeds/h10.xml",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "participation_mode": "editorial",
+      "interval_minutes": 720,
+      "tags": [
+        "官方",
+        "汇率",
+        "美元指数"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 实测 HTTP 200 / 82KB / 92 条，日期在 dc:date 且自带 -04:00 时区。补齐美元指数主题：H.10 是美联储官方汇率日报，含欧元/日元/英镑/人民币等主要货币。框架 rss.ts 已支持 dc:date，不用改代码。"
+    },
+    {
+      "id": "rss-goldorg-news",
+      "name": "世界黄金协会",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.gold.org/rss.xml",
+        "denyUrlPrefixes": [
+          "https://www.gold.org/invitations/",
+          "https://www.gold.org/events/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 15
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "wgc",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "官方",
+        "黄金",
+        "央行购金"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "notes": "2026-10-05 实测 HTTP 200 / 178KB / 10 条且全部有 pubDate，轮内15 处 central bank 关键词（央行购金专题）。全球黄金行业最权威的协会源，补齐黄金与央行购金两个空白主题。日期自带 +0100 时区，框架保留原时区语义，不要配 publishedAtUtcOffset。"
+    },
+    {
+      "id": "cftc-cot-metals",
+      "name": "CFTC 持仓报告（贵金属）",
+      "kind": "external",
+      "tier": "T_DATA",
+      "owner_entity_id": "cftc",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "官方",
+        "持仓"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "config": {}
+    },
+    {
+      "id": "rss-fed-monetary",
+      "name": "美联储 · 货币政策",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.federalreserve.gov/feeds/press_monetary.xml",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T2",
-      "owner_entity_id": null,
+      "tier": "T1",
+      "owner_entity_id": "fed",
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
-        "媒体"
+        "官方",
+        "央行"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-techcrunch-ai",
-      "name": "TechCrunch · AI",
+      "id": "rss-fed-all",
+      "name": "美联储 · 全部新闻稿",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "feedUrl": "https://www.federalreserve.gov/feeds/press_all.xml",
         "_aihot": {
           "initialBackfillLimit": 8
         }
       },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-ars-technica-ai",
-      "name": "Ars Technica · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "tags": [
-        "媒体"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-mit-tech-review-ai",
-      "name": "MIT Technology Review · AI",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
-      "owner_entity_id": null,
+      "tier": "T1",
+      "owner_entity_id": "fed",
       "participation_mode": "editorial",
       "interval_minutes": 120,
       "tags": [
-        "媒体"
+        "官方",
+        "央行"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-the-decoder",
-      "name": "The Decoder",
+      "id": "rss-ecb-press",
+      "name": "欧洲央行 · 新闻稿",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
+        "feedUrl": "https://www.ecb.europa.eu/rss/press.html",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "ecb",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方",
+        "央行"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-eia-today",
+      "name": "EIA 每日能源",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.eia.gov/rss/todayinenergy.xml",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "eia",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方",
+        "能源"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-sec-press",
+      "name": "SEC 新闻稿",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.sec.gov/news/pressreleases.rss",
+        "_aihot": {
+          "initialBackfillLimit": 6
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "sec",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "官方",
+        "监管"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "web-nbs-zxfb",
+      "name": "国家统计局 · 数据发布",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.stats.gov.cn/sj/zxfb/",
+        "itemSelector": ".list-content > ul > li",
+        "linkSelector": "a",
+        "titleSelector": "a",
+        "publishedAtUtcOffset": "+08:00",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1",
+      "owner_entity_id": "nbs",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方",
+        "统计"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-investing-commodities",
+      "name": "Investing.com 大宗商品分析",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.investing.com/rss/commodities.rss",
+        "_aihot": {
+          "initialBackfillLimit": 8
+        }
+      },
+      "tier": "T1_5",
+      "owner_entity_id": null,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "tags": [
+        "媒体",
+        "分析"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false,
+      "notes": "2026-10-05 实测失效：investing.com/rss/commodities.rss 返回 403（响应体 3 字节），4 种 UA × 3 次 = 12/12 全 403，站方加了风控。已停用；黄金/白银内容改由 WGC + Kitco + CNBC 覆盖。启用前必须重新实测 HTTP 状态。"
+    },
+    {
+      "id": "rss-cnbc-economy",
+      "name": "CNBC · 经济与市场",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -306,31 +408,32 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-simon-willison",
-      "name": "Simon Willison",
+      "id": "rss-seekingalpha-market",
+      "name": "Seeking Alpha 市场快讯",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
+        "feedUrl": "https://seekingalpha.com/market_currents.xml",
         "_aihot": {
-          "initialBackfillLimit": 8
+          "initialBackfillLimit": 6
         }
       },
-      "tier": "T2",
+      "tier": "T2_OP",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 30,
       "tags": [
-        "个人"
+        "媒体",
+        "观点"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-import-ai",
-      "name": "Import AI",
+      "id": "rss-yahoo-finance",
+      "name": "Yahoo Finance 新闻",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://importai.substack.com/feed",
+        "feedUrl": "https://finance.yahoo.com/news/rssindex",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -338,33 +441,29 @@
       "tier": "T2",
       "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 60,
       "tags": [
-        "个人",
-        "周刊"
+        "媒体"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-latent-space",
-      "name": "Latent Space",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.latent.space/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
-      },
-      "tier": "T2",
+      "id": "ext-price-snapshot",
+      "name": "每日价格快照",
+      "kind": "external",
+      "tier": "T_DATA",
       "owner_entity_id": null,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "participation_mode": "isolated",
+      "interval_minutes": 1440,
       "tags": [
-        "个人"
+        "快照",
+        "行情"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "apiBase=https://api.gold-api.com/price",
+      "config": {}
     }
   ]
 }

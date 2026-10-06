@@ -144,7 +144,7 @@ export function Sheet({ open, onClose, title, children, label, centered = false 
                 </h2>
                 <button type="button" aria-label="关闭" onClick={onClose} className="grid size-11 shrink-0 place-items-center rounded-full text-ink-3">
                   <span className="grid size-[30px] place-items-center rounded-full bg-bg-sunk dark:bg-bg-muted">
-                    <IconClose size={15} strokeWidth={2} />
+                    <IconClose size={15} />
                   </span>
                 </button>
               </div>

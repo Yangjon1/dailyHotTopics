@@ -14,3 +14,13 @@ apps/web/.react-router/
 # Font package unpacked to regenerate the report nameplates (docs/customize.md)
 package/
 fontsource-noto-sans-sc-*.tgz
+
+# 删除守卫（CodeBuddy harness）的暂存区：误删的文件会落在这里等确认，不是仓库内容。
+.trash-stage/
+
+# 验收截图：本地看，不入库（体积大且每次跑都会变）
+qa_shots/
+apps/web/tests/shots/
+
+# .workbuddy/tmp-probe：实测信源可达性时的临时探针
+.workbuddy/tmp-probe/

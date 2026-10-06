@@ -71,6 +71,28 @@ docker compose stop api worker web
 docker compose run --rm setup && docker compose up -d
 ```
 
+#### 本站的一次性数据修正（2026-10-06）
+
+本站在 0058/0059 两个迁移里放宽了 `sources.tier` 的取值范围（新增 `T_DATA` 官方统计源与`T2_OP` 观点类媒体）。这两个迁移只负责**加上**新约束并验证它，`0001_core.sql` 里那条只认识旧分级的 `sources_tier_check` 仍在库里，它会拒绝写入新分级。
+
+移除这条旧约束**不能放进发布迁移**：`ALTER TABLE ... DROP CONSTRAINT` 会重验全表并持强锁，在线迁移检查会拒绝（`scripts/migration-safety.ts` 的允许清单里只有加 NOT VALID 约束、验证约束、并发索引、MCV 统计、常量默认列与`DROP TABLE IF EXISTS`）。本表的行数只有十几个，一次性手工执行即可。
+
+已有部署执行一次：
+
+```bash
+docker compose exec -T db psql -U aihot -d aihot \
+  -c "ALTER TABLE sources DROP CONSTRAINT IF EXISTS sources_tier_check;"
+```
+
+验证：
+
+```bash
+docker compose exec -T db psql -U aihot -d aihot -tAc \
+  "SELECT conname FROM pg_constraint WHERE conname LIKE 'sources_tier%';"
+```
+
+只应看到 `sources_tier_check_v2`。新库（`docker compose down -v` 后重建）不需要这一步，因为它从零起库时 `0001` 的旧约束虽然存在，但 `sources` 表是空的——不过为了让新库与已有库一致，建议也在首次启动后执行一次。
+
 迁移成功后再启动服务；迁移失败时先查看错误，不要继续启动。使用 HTTPS 配置的站点继续保留 `--profile https`。旧的 API 和 worker 要在迁移前停下：迁移可能删表删列，旧代码还在跑会出错；正常关闭 worker 会等进行中的付费调用收尾（最长三分多钟）。非 Docker 部署也按“备份、构建、停止 API/worker/web、迁移（`scripts/migrate.ts`）、种子数据（`scripts/seed.ts`）、启动”的顺序更新。
 
 新迁移遇到长期占锁会报出文件名和等待超时，先处理占锁事务，再重跑 setup，不要跳过迁移或改写迁移账本。并发索引创建中断可能留下无效索引：核实报错中的对象后，用 `DROP INDEX CONCURRENTLY <索引名>` 清理该失败索引再重跑；有效但定义不同的同名索引须先核对差异。这些保护不改变上述 Docker 更新顺序，跨旧版本升级仍可能执行历史上的破坏性迁移。

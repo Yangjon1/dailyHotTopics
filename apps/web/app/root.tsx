@@ -27,6 +27,10 @@ export const links: Route.LinksFunction = () => [
   { rel: "apple-touch-icon", href: "/apple-icon.png" },
   { rel: "manifest", href: "/manifest.webmanifest" },
   { rel: "alternate", type: "application/rss+xml", title: `${SITE.name} — 精选`, href: "/feed.xml" },
+  // Only the body face is preloaded. It serves the running text and every figure on the page; the
+  // condensed and mono cuts are used by headings and codes, and preloading them would spend
+  // bandwidth on the first paint of glyphs that appear further down.
+  { rel: "preload", href: "/fonts/Roboto-400.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
 ];
 
 /** The release rendering this document: once a newer one is deployed, a render error reloads the page (entry.client). */
@@ -54,8 +58,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         {documentRelease && <meta name="aihot-release" content={documentRelease} />}
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf9f6" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#13191c" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f8f9" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14191c" />
         <meta name="apple-mobile-web-app-title" content={SITE.name} />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         {webModules().map((m) => m.root?.bootScript && <script key={m.name} dangerouslySetInnerHTML={{ __html: m.root.bootScript }} />)}

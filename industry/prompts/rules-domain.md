@@ -1,45 +1,77 @@
 
-【AI 领域翻译规则 — 本平台 100% 是 AI/ML/LLM 行业内容，严格遵守】
+【金属与宏观领域翻译规则 — 本平台 100% 是贵金属、大宗商品与股债内容，严格遵守】
 
-1. 歧义默认值：以下词在中文有非 AI 歧义，**一律按 AI 含义翻译**：
-   - LLM = 大语言模型（绝不译"法学硕士"/"Master of Laws"）
-   - Token / tokens = 模型 token（保留英文；绝不译"代币"/"令牌"）
-   - Transformer = Transformer 架构（保留英文；不译"变压器"）
-   - Diffusion = 扩散模型（AI 生成，不是物理扩散）
-   - Agent / Agentic = AI 智能体 / 智能体的（不译"代理人"/"中介"）
-   - Alignment = 对齐（AI 安全语境）
-   - Inference = 推理（模型生成）
-   - Reasoning = 推理（注意：与 inference 都译"推理"，必要时用"链式推理"区分 CoT；reasoning model 指 o1/o3/R1 这类思考型模型）
-   - Embedding = 嵌入向量（也可保留英文）
-   - Distillation = 知识蒸馏
-   - Hallucination = 模型幻觉
-   - Fine-tune / Fine-tuning = 微调
-   - Pretrain / Pretraining = 预训练
-   - Context window = 上下文窗口
-   - Prompt = 提示词
-   - Skill / Skills = 技能（Claude 等 Agent 框架的能力包，不译"特长"）
+1. 歧义默认值：以下词在中文有非金融歧义，**一律按金融含义翻译**：
+   - Bullion / Bull = 现货/金银现货（不是“公牛”）
+   - Long / Short = 多头 / 空头（不是“长/短”，不是“多头寸”的引申义）
+   - Contract = 合约（不是“合同”）
+   - Future / Forward = 期货 / 远期（不是“未来”）
+   - Spot = 现货（不是“地点”）
+   - Hedge = 套保（不是“树篱”）
+   - Basis = 基差（不是“基础”）
+   - Spread = 价差 / 套利（期货语境）；Spreading = 套利头寸
+   - Open Interest = 持仓量（不是“公开兴趣”）
+   - Positioning = 头寸（不是“定位”）
+   - Net Long / Net Short = 净多头 / 净空头
+   - Bullion ETF = 黄金 ETF
+   - Safe Haven = 避险资产 / 避险（不是“安全港”的字面义）
+   - Taper = 缩表 / 缩减购债（不是“逐渐变细”）
+   - Reflation = 再通胀；Deflation = 通缩
+   - Carry Trade = 套息交易
+   - EIA / API 库存 = 官方库存 / 行业协会库存（两者口径不同，不得互换）
+   - CPI / PCE / PPI = 各自保留缩写原文，不互相替换
 
 2. 以下专有名词**一律保留英文原文**，不翻译不加中文括注：
-   - AI 公司：OpenAI / Anthropic / Google DeepMind / xAI / Meta AI / Mistral / DeepSeek / Cohere / HuggingFace（HF）/ Runway / ElevenLabs / Suno / Pika / Midjourney / Perplexity
-   - 模型族（举例 + 通用规则）：GPT / Claude / Gemini / Llama / Qwen / Grok / o 系列 / DeepSeek / Mistral / Mixtral / Phi / Sora / Veo / Imagen
-     **规则**：任何大模型族名、产品代号一律保留英文
-   - 模型版本号（举例 + 通用规则）：GPT-5 / Claude 4.7 / Claude Sonnet 4.6 / Llama 4 / Gemini 3 / o3 / o4 / DeepSeek-V4 / Qwen3.7
-     **规则**：版本号一字不改（包括字母数字后缀如 4o / 4.7 / 405B / V4 / R1），绝不"翻译性扩写"（不要把 "405B" 译成 "4050 亿"，不要把 "V4" 译成 "第 4 代"）
-   - 技术缩写（举例 + 通用规则）：LLM / RAG / RLHF / DPO / LoRA / QLoRA / PEFT / MoE / CoT / ReAct / KV cache / SOTA / AGI / MCP / ADK / NPU / GPU / TPU
-     **规则**：任何 2-5 字母的全大写缩写，默认按 AI/ML 含义保留英文
-   - 评测基准（举例 + 通用规则）：MMLU / GPQA / HumanEval / SWE-bench / SWE-bench Verified / AIME / HLE / ARC-AGI / ARC-AGI 2 / MT-Bench / Chatbot Arena / Aider Polyglot / LiveCodeBench
-     **规则**：以 -bench / -eval 结尾或全大写的评测名一律保留英文
-   - AI 工具/产品：Cursor / Copilot / Codex / Aider / Devin / Cline / Claude Code / Windsurf / Zed / v0 / Bolt / Lovable / Replit Agent
-   - Agent 框架：LangChain / LangGraph / LlamaIndex / CrewAI / AutoGen / Pydantic AI / Vercel AI SDK / DSPy
-   - 推理/部署：Ollama / vLLM / SGLang / TensorRT / Triton / CUDA / ROCm
-   - 通用技术：API / SDK / CLI / IDE / SaaS / CDN / SSO / OAuth / JWT / WebSocket / SSE / gRPC
+   - 品种与交易代码：XAU / XAG / XPT / XPD / HG / AU9999 / AG9999 / COMEX / NYMEX / LME / SHFE / SGE / LBMA
+   - 机构与报告：CFTC / COT（持仓报告）/ WGC（世界黄金协会）/ EIA / BLS / BEA / IEA / OPEC / OPEC+ / FOMC / ECB / PBOC / LPR / MLF / NBS / USGS / INSG / ILZSG / IMF
+   - 指标：PCE / CPI / PPI / PMI / NFP（非农）/ GDP / PPI / DPI / OI（持仓量）/ DXY（美元指数）
+   - 金融术语：bps / bp（基点）/ OIS / SOFR / FRA / ODD / EFP / CIP / CIF（含成本）/ LME 库存 / COMEX registered stocks
+   - 交易机制：roll（移仓）/ contango（contango 展期）/ backwardation（backwardation 现货升水）/ basis trade
 
-3. 中国厂商**优先用官方中文品牌名**（首次出现可双标"千问（Qwen3）"，后续选一种保持一致）：
-   - 千问（Qwen）/ 文心一言 / 智谱（GLM）/ 月之暗面（Kimi）/ 深度求索（DeepSeek）/ 阶跃星辰（Step）/ 零一万物（Yi）/ 百川 / 豆包（字节）/ 混元（腾讯）/ 可灵（Kling，快手）/ 即梦（Jimeng，字节）/ MiniMax（不译）/ 美团 LongCat / 昆仑万维 Skywork / 面壁 MiniCPM / 华为昇腾 / 寒武纪
+3. 品种与市场的对应关系**必须逐字对齐，不得互换或混同**（这是本站最容易出错的一类硬伤）：
+   - COMEX 期金 ≠ 现货金 ≠ 伦敦金（LBMA 定价）≠ 沪金（SHFE）≠ 上海金（SGE Au9999）
+   - COMEX 期银 ≠ 现货银 ≠ 沪银 ≠ 白银现货
+   - LME 铜 ≠ 沪铜 ≠ COMEX 铜（铜是**美元/磅**，金银铂钯是**美元/盎司**）
+   - 报告期写法：原文写「9 月 29 日持仓」就写 9 月 29 日，不改成「本周」或「上周五」
+   - 计价单位随原文：美元/盎司（XAU、XAG、XPT、XPD）、美元/磅（HG）、美元/桶（WTI、Brent）
 
-4. 代码 / 命令 / URL / 数字单位 **一字不改**保留：
-   - 反引号代码 `code` 不翻译
-   - 命令如 /code-review、pip install、npm run 不译（不要译"代码审查"）
-   - URL 原样
-   - 数字+单位：8k context / 175B params / 3.5x speedup / $3 per M tokens / 99.9%
-   - 金额、参数量、比例、区间必须保留原文的阿拉伯数字和单位；不要把 $10B-$100B 改写成“数百亿至数千亿美元”等中文数量词
+4. 数字与单位**一字不改**保留：
+   - 价格与涨跌幅：4132.79 美元/盎司、+1.24%、-0.86%
+   - 持仓量与变化：6344 手、120318 手、净多头
+   - 利率与收益率：4.25%–4.50%、10 年期美债 3.87%、上行 12bp
+   - 区间与日期：4.25%-4.50%、2026-09-29、9 月 29 日
+   - **基点（bp）与百分比不可互换**：原文写「上行 12 个基点」不得写成「上行 12%」；原文写「上涨 1.2%」不得写成「上涨 120bp」
+   - 不要把 $3 per M tokens 这类写法改写成中文数量词（「三百万美元」），保留阿拉伯数字与单位
+
+5. **合规边界（面向读者的文字，最高优先级）**：
+   本平台的读者是交易/配置决策者，会把摘要、推荐理由、综述当作事实依据。本行业天然充满价格与预测，风险高于一般资讯。以下内容**不得出现在任何面向读者的文字里**：
+   - 投资建议：买入、卖出、逢低、逢高、入场、离场、减仓、加仓、增持、减持、持有、配置比例、满仓、杠杆、做多、做空
+   - 目标价与价位预测：「目标价上看 3500」「合理估值 2800-3200」「金价有望突破 3000」
+   - 确定性预测：必将、一定会、肯定会、毫无疑问、必然、注定
+   - 无出处的方向判断：有倾向但未标明是谁的判断
+
+   **总原则：事实可转述，判断必须归属。** 事实（已发生的动作、已公布的数据、已作出的决议）用陈述句直接写。判断（预测、预期、评级、倾向）必须写成转述，标明出处，并**保留原文的推测性动词**：认为、预计、预期、料、暗示、看多、看空。
+
+   **推测性动词不得省略。** 中文没有独立的虚拟语气，删掉「认为」两个字，句子就从转述变成了断言，读者会当成建议。所以「某机构认为金价仍有上行空间」不得写成「金价仍有上行空间」，「预计降息一次」不得写成「降息一次」。
+
+   **当不确定时删除，而不是改写。** 删掉一句可能的信息，代价远小于发出一条擦边建议。宁可少写一句，不可写错一句。
+
+   原文只有「建议」「看多」而无具体标的与价位时，也不要转述其倾向；只写它讨论了什么对象、用了什么依据。
+
+6. 常见误译（这些词在财经语境有确定译法，不要想当然）：
+   - precious metals = 贵金属（不是“宝贵金属”）
+   - base metals = 基本金属 / 基础金属（本站标签统一用「基础金属」）
+   - commodity = 大宗商品（不是“商品”单用）
+   - energy commodity = 能源大宗商品
+   - central bank = 央行（不是“中央银行”的机构泛称）
+   - foreign exchange / FX = 外汇（不是“国外汇兑”）
+   - yield curve = 收益率曲线（不是“产出曲线”）
+   - inflation / deflation = 通胀 / 通缩
+   - easing / tightening = 宽松 / 紧缩（货币政策语境）
+   - hawkish / dovish = 鹰派 / 鸽派
+   - mine / mining = 矿山 / 矿业
+   - refined / unrefined = 精炼 / 未精炼
+   - concentrate = 精矿（不是“浓缩物”）
+   - cathode / anode = 阴极铜 / 阳极
+   - LME 库存 = LME 仓库库存（注册仓单）
+   - ETF 持仓 = ETF 持币量 / 持仓量（按原文口径）

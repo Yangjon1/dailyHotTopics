@@ -84,7 +84,7 @@ export function StarButton({ item, size, className = "size-[26px]" }: { item: St
       style={size ? { width: size, height: size } : undefined}
       className={`relative z-10 inline-flex shrink-0 items-center justify-center rounded-control transition-colors duration-150 ${on ? "text-accent" : "text-ink-4 hover:bg-bg-sunk hover:text-ink-2"} ${className}`}
     >
-      <span key={pulse} className={`flex ${pulse ? "anim-bump" : ""}`}>
+      <span key={pulse} className={`flex ${pulse ? "anim-confirm" : ""}`}>
         <IconBookmark size={size ? Math.round(size * 0.6) : 16} filled={on} />
       </span>
     </button>

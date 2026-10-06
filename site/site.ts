@@ -18,16 +18,16 @@ export const EDITION_WHEN = {
 
 export const SITE = {
   /** 站名：导航、页面标题、分享图、RSS、MCP、后台都用它。 */
-  name: "MyHOT",
+  name: "金属与宏观",
   /**
-   * 行业词：拼进默认说法里，比如“AI 日报”“AI 动态”。
-   * 改成“法律”“HR”“黄金”之类，页面上就会变成“法律日报”“法律动态”。
+   * 行业词：拼进默认说法里，比如「金属与宏观日报」「金属与宏观动态」。
+   * 改成「法律」「HR」「黄金」之类，页面上就会变成「法律日报」「法律动态」。
    */
-  subject: "AI",
+  subject: "金属与宏观",
   /** 首页的完整标题（浏览器标签、搜索结果）。 */
-  homeTitle: "MyHOT — AI 行业动态 · 每日精选与日报",
+  homeTitle: "金属与宏观 — 贵金属、大宗与股债每日精选与日报",
   /** 主题目录页（/topics）的标题。 */
-  topicsTitle: "AI 主题：公司与模型、技术方向、内容形态的最新动态",
+  topicsTitle: "金属与宏观主题：品种、机构与内容形态的最新动态",
   /** 反馈表单输入框里的示例。 */
   feedbackExample: "例如：我在搜索某个关键词时遇到……我原本想……",
   /** 反馈页标题下面的一句话。 */
@@ -35,13 +35,13 @@ export const SITE = {
   /** 反馈表单邮箱框里的提示。 */
   feedbackEmailHint: "留下邮箱，我们可以回信联系你",
   /** 一句话介绍：搜索引擎、分享卡片、RSS、llms.txt 会用。 */
-  description: `从一批 AI 信源里挑出值得看的动态，把同一件事的多篇报道归到一起，${EDITION_WHEN.daily} 出一份日报。`,
+  description: `从一批央行、交易所、统计机构与财经媒体采集贵金属、大宗商品与股债领域的消息，归组成事件、算热度，${EDITION_WHEN.daily} 出一份日报。`,
   /** llms.txt 里一句话介绍下面的一段详细介绍（选填）。 */
   llmsIntro: null as string | null,
   /** 一行小字：分享图、海报下方。 */
-  tagline: "值得关注的 AI 动态",
+  tagline: "贵金属、大宗与股债的每日决策信息",
   /** 搜索引擎读到的关键词（首页结构化数据）。 */
-  keywords: ["AI 资讯", "AI 新闻", "AI 日报", "AI 行业动态"] as string[],
+  keywords: ["黄金", "白银", "铜", "原油", "美债收益率", "CFTC 持仓", "央行购金", "金属与宏观日报"] as string[],
   /** 网站开始收录的年份（结构化数据的时间范围，选填）。 */
   since: null as string | null,
   /** 界面语言（HTML lang、og:locale）。 */
@@ -51,10 +51,10 @@ export const SITE = {
   /** 标准图标（favicon.ico、icon.png、icon-192.png、apple-icon.png、logo.svg）以外也放在网站根目录的图标，site/brand/ 里的文件名（选填）；manifest.webmanifest 或外站引用了它们时用。 */
   rootIcons: [] as string[],
   /**
-   * MCP 工具名的前缀（小写字母、数字、下划线），工具会叫 myhot_get_latest、myhot_search……
+   * MCP 工具名的前缀（小写字母、数字、下划线），工具会叫 metalsmacro_get_latest、metalsmacro_search……
    * 已经有人接入后就不要再改。
    */
-  mcpPrefix: "myhot",
+  mcpPrefix: "metalsmacro",
   /**
    * 公开接口（MCP、OpenAPI、llms.txt）的版本号，只升不降。
    * 改了接口里已有的字段或含义时升主版本，并在部署说明里写清。
@@ -62,20 +62,22 @@ export const SITE = {
   interfaceVersion: "4.0.0",
   /** 对外联系邮箱（选填）：llms.txt 和给 Agent 的使用说明里会写。 */
   contactEmail: null as string | null,
-  /** 关于页底部的一行小字（选填）。 */
-  footerNote: "由 AIHOT 开源框架驱动",
+  /**
+   * 关于页底部的一行小字（选填）。留空：不冒用上游框架的名字（AC-24 要求页面上不出现 AIHOT 名称或 Logo）。
+   */
+  footerNote: null as string | null,
   /** 中国大陆网站的 ICP 备案号（选填），填了就显示在侧栏底部和“我的”页底部，并链接到工信部备案系统。 */
   icp: null as string | null,
   /** 源码的 GitHub 仓库地址（选填），填了就在侧栏底部和“我的”页底部显示“GitHub 开源”。 */
   github: null as string | null,
   /** 结构化数据里的网站运营者（搜索引擎用）。 */
   organization: {
-    name: "MyHOT",
+    name: "金属与宏观",
     /** 创始人（选填）。 */
     founder: null as null | { name: string; alternateName?: string; jobTitle?: string; description?: string; url?: string },
   },
   /** 抓取信源时报上的名字和版本（User-Agent 里用），不要冒用别的站。 */
-  crawlerName: "MyHOTBot/1.0",
+  crawlerName: "MetalsMacroBot/1.0",
 } as const;
 
 /** 使用规则和隐私说明两页（正文在 pages/ 里）。 */
@@ -115,7 +117,7 @@ export const POLICY = {
 export const ITEM_COPY = {
   /** 模型写的那句理由叫什么：卡片、详情页、Markdown 导出、给 Agent 的回答和群推送都用它。 */
   reasonLabel: "推荐理由",
-  /** 读者在网页和分享图上看不看得到 AI 评分。只管显示：公开 API 和 MCP 的数据照样带 score，后台照常显示。 */
+  /** 读者在网页和分享图上看不看得到模型评分。只管显示：公开 API 和 MCP 的数据照样带 score，后台照常显示。 */
   showScore: true,
 };
 
@@ -134,15 +136,15 @@ export const ABOUT = {
   /** 页面描述（搜索结果、分享卡片）。 */
   description: `关于 ${SITE.name}：${SITE.description}`,
   /** 大标题：第一行正常颜色，第二行强调色。 */
-  headline: ["AI 圈每天都有新动静，", "值得看的，只有几条。"] as [string, string],
+  headline: ["金属与宏观每天都有新动静，", "值得看的，只有几条。"] as [string, string],
   /** 标题下面的一段话。{sources} 会换成实时的信源数（两边自动加空格，所以 {sources} 两边不写空格）；统计没取到时换成 sourcesFallback。 */
   lead: `${SITE.name} 替你盯着{sources}个信源：抓取、归并、打分、精选，${EDITION_WHEN.daily} 出一份日报。免费，不用注册。`,
-  sourcesFallback: "十几",
+  sourcesFallback: "十几个",
   /** 信源河动画下面的四个环节。 */
   steps: {
-    collect: "官方博客、媒体和个人的订阅源都在看；更新越勤的源看得越勤，最快 15 分钟看一次。",
-    store: "抓到的都存下来，同一件事的报道归到一起，热点榜就是从这里算出来的。",
-    select: `模型先看是不是这个行业的事、有没有实际信息，再写中文标题、摘要和${ITEM_COPY.reasonLabel}；营销稿和重复转发进不来。`,
+    collect: "央行、交易所、统计机构与财经媒体的订阅源都在看；官方数据源更新不勤，采得也勤，最快每小时看一次。",
+    store: "抓到的都存下来，同一事件的多篇报道归到一起，热点榜就是从这里算出来的。",
+    select: `模型先看是不是金融的事、有没有实际信息，再写中文标题、摘要和${ITEM_COPY.reasonLabel}；行情读数、营销稿和重复转发进不来。`,
     publish: `${EDITION_WHEN.daily} 出日报，${EDITION_WHEN.weekly} 出周报，${EDITION_WHEN.monthly} 出月报。`,
   },
   /**
@@ -176,7 +178,7 @@ export const ADMIN = {
 /** Agent 接入页的示例。 */
 export const AGENT = {
   /** MCP 工具表里“搜索”一行：能搜什么、可以怎么问。 */
-  search: { scope: "按公司、产品、人物或话题搜最近 7 天", ask: "这家公司最近发了什么？" },
+  search: { scope: "按品种、机构、国家或话题搜最近 7 天", ask: "美联储最近降息了吗？影响哪些金属？" },
 };
 
 /** 日报、周报、月报版面上的说法。 */
@@ -187,19 +189,37 @@ export const REPORTS = {
   motto: SITE.subject as string,
   /** 每种报告页面的描述（搜索结果、分享卡片），不带句号；llms.txt 介绍周报、月报时也用它。 */
   descriptions: {
-    daily: `${SITE.name} ${subjectAfter(`${EDITION_WHEN.daily}（北京时间）发布的`, "行业精编日报")}`,
-    weekly: subjectAfter("每周", "行业综合回顾"),
-    monthly: subjectAfter("每月", "行业盘点"),
+    daily: `${SITE.name} ${subjectAfter(`${EDITION_WHEN.daily}（北京时间）发布的`, "精选日报")}`,
+    weekly: subjectAfter("每周", "综合回顾"),
+    monthly: subjectAfter("每月", "月度盘点"),
   },
   /**
-   * 一期里的一条怎么称呼（“4 件大事”）：没有头条时的标题（“这一天的 4 件 AI 大事”）、报头和往期目录的条数、
-   * 周报月报没有总述时的那句话，以及订阅说明里的“按栏目分好的大事”都用它。
+   * 一期里的一条怎么称呼（“4 条动态”）：没有头条时的标题（“这一天的 4 条动态”）、报头和往期目录的条数、
+   * 周报月报没有总述时的那句话，以及订阅说明里的“按栏目分好的动态”都用它。
+   * 金融语境不用“件大事”：大宗商品与宏观消息不是“大事”，且“件”与货币的“件”混淆。
    */
-  entry: { measure: "件", noun: "大事" },
+  entry: { measure: "条", noun: "动态" },
   /** 报头上其余几个数字后面的说法；精选数和日报期数在关于页、主题页也这样写。 */
-  metricUnits: { sourcesCount: "个来源", firstPartyEvents: "件一手发布", selectedCount: "条精选", reportsCovered: "期日报" },
+  metricUnits: { sourcesCount: "个来源", firstPartyEvents: "项官方发布", selectedCount: "条精选", reportsCovered: "期日报" },
   /** 报告分享图上“共几条”的说法。 */
-  shareUnit: "件大事",
+  shareUnit: "条动态",
+  /**
+   * 官方级发布数量的三态文案（Spec §9.14，AC-16/17/18）。
+   *
+   * 「今天清淡」本身就是决策信息：读者需要知道今天是「有官方发布要盯」还是「可以轻仓观望」。
+   * 但**绝不能用采集失败伪装成「今天没事」**——那会让 A 类用户以为风平浪静，实际是站点瞎了。
+   * 所以第三态是硬要求：部分官方源失败时必须显式说出来，同时仍显示已采到的项数。
+   *
+   * N 是本期采到的官方级发布（T1 与 T_DATA 分级）条数，incomplete 表示有官方源本次没采成功。
+   */
+  officialTally: {
+    /** 全部官方源采集成功且 N > 0。 */
+    withItems: (n: number) => `今日要盯的官方发布 ${n} 项`,
+    /** 全部官方源采集成功且 N = 0。不能只写「0 项」——那看起来像站点故障，而不是「今天确实没事」。 */
+    empty: "今日无官方级发布，可轻仓观望",
+    /** 有官方源未成功采集。绝不显示 empty。 */
+    incomplete: "部分官方源未成功采集",
+  },
 };
 
 /** 运维告警（只发给站长）里随部署而变的几处说法。 */
@@ -298,12 +318,12 @@ export const PUBLIC_CATEGORIES = {
   feedLabels: {},
 } as const;
 
-/** “AI 日报”这类说法：行业词和名词之间，英文词加空格，中文词不加。 */
+/** “金属与宏观日报”这类说法：行业词和名词之间，英文词加空格，中文词不加。 */
 export function withSubject(noun: string): string {
   return /[A-Za-z0-9]$/.test(SITE.subject) ? `${SITE.subject} ${noun}` : `${SITE.subject}${noun}`;
 }
 
-/** “按主题看 AI”“往期 AI 日报”这类说法：行业词接在中文后面，英文词前加空格，中文词不加；noun 照 withSubject 接上。 */
+/** “按主题看金属与宏观”“往期金属与宏观日报”这类说法：行业词接在中文后面，英文词前加空格，中文词不加；noun 照 withSubject 接上。 */
 export function subjectAfter(text: string, noun?: string): string {
   const gap = /^[A-Za-z0-9]/.test(SITE.subject) ? " " : "";
   return `${text}${gap}${noun ? withSubject(noun) : SITE.subject}`;

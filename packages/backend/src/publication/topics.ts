@@ -218,10 +218,21 @@ export const TOPIC_PAGE_SIZE = 20;
 /** A company's initial, drawn as its mark. */
 const monogram = (t: Topic): Brand => ({ src: null, monogram: t.name.replace(/[^\p{L}\p{N}]/gu, "").slice(0, 1).toUpperCase(), raster: false });
 
-/** Every company's mark, by its topic's slug. */
+/**
+ * The groups whose topics carry a monogram mark: the things a reader recognises on sight (a variety
+ * or an institution), not the content forms. This pack lists 黄金 / 白银 / 原油 first and their
+ * initials read better than any company logo would.
+ *
+ * Named as data rather than filtered by a bare `group === "company"`: a pack that renames its
+ * groups would otherwise match nothing and every listing would quietly lose its marks, with nothing
+ * failing. A pack with different group names sets MONOGRAM_GROUPS to its own.
+ */
+const MONOGRAM_GROUPS: ReadonlySet<string> = new Set(["variety", "institution"]);
+
+/** Every marked topic's mark, by its topic's slug. */
 async function companyBrands(): Promise<Map<string, Brand>> {
-  const companies = TOPICS.filter((t) => t.group === "company");
-  const brands = new Map<string, Brand>(companies.map((t) => [t.slug, monogram(t)]));
+  const marked = TOPICS.filter((t) => MONOGRAM_GROUPS.has(t.group));
+  const brands = new Map<string, Brand>(marked.map((t) => [t.slug, monogram(t)]));
   // The modules' marks over the monograms.
   for (const m of serverModules()) {
     if (!m.topics?.marks) continue;

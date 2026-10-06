@@ -101,7 +101,23 @@ export function SearchOverlay() {
     setOpen(false);
   }
 
-  const companies = (more?.topics ?? []).filter((t) => t.group === "company").slice(0, 6);
+  /*
+   * The browse chips under the search box: a handful of the directory's own entries, so a reader
+   * who does not know what to type can still start somewhere.
+   *
+   * It used to filter on `group === "company"`, the framework's name for the group holding
+   * 黄金 / 白银 / 原油. This pack renamed its groups to variety / institution / form and the filter
+   * matched nothing from then on: the section was simply gone, on every phone, with no error, no
+   * type error (the old key is still a valid TopicGroupKey) and no failing test. A predicate on a
+   * string that a data file can rename is a predicate that can go quietly dead.
+   *
+   * So nothing here names a group. The directory already orders its entries the way a reader should
+   * meet them — the pack lists 黄金 / 白银 / 原油 first — and `topicBrowseLinks` returns them in that
+   * order, so the first few are the ones worth offering and no filter is needed to find them. A
+   * renamed group moves the chips with it, which is the whole point: the alternative is a key that
+   * can fall out of step with industry/topics.json and take a section of the UI with it, silently.
+   */
+  const browseChips = (more?.topics ?? []).slice(0, 6);
   const chip = "inline-flex h-11 max-w-full items-center rounded-full px-3.5 text-[14px] transition-colors";
   return (
     <div
@@ -183,11 +199,11 @@ export function SearchOverlay() {
             </section>
           )}
 
-          {companies.length > 0 && (
+          {browseChips.length > 0 && (
             <section className="pt-6">
               <h2 className="text-[13px] font-semibold text-ink-3">按主题找</h2>
               <div className="mt-2.5 flex flex-wrap gap-2">
-                {companies.map((t) => (
+                {browseChips.map((t) => (
                   <Link viewTransition key={t.slug} to={`/topics/${t.slug}`} className={`${chip} bg-bg-sunk text-ink-2 ring-1 ring-inset ring-line-soft active:bg-bg-muted dark:bg-bg-muted/60`}>
                     <span className="truncate">{t.name}</span>
                   </Link>
@@ -206,7 +222,7 @@ export function SearchOverlay() {
                 {more!.hot.map((h, i) => (
                   <li key={h.to}>
                     <Link viewTransition to={h.to} className="grid h-12 grid-cols-[18px_minmax(0,1fr)] items-center gap-x-3 active:opacity-60">
-                      <span className={`num text-center text-[15px] font-black ${RANK_COLOR[i] ?? "text-rank-rest"}`}>{h.rank}</span>
+                      <span className={`num text-center text-[15px] font-bold ${RANK_COLOR[i] ?? "text-rank-rest"}`}>{h.rank}</span>
                       <span className="truncate text-[15px] text-ink">{h.title}</span>
                     </Link>
                   </li>

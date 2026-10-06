@@ -6,18 +6,61 @@
 @source "../../../modules/*/{web.tsx,web/**}";
 
 /* ---------------------------------------------------------------------------
-   Design tokens: warm off-white paper, ink text, one teal accent (cyan in
+   Design tokens: cool off-white ground, ink text, one teal accent (cyan in
    dark), hairline borders, no gradients.
+
+   The ground is a cool neutral (#f7f8f9) rather than warm paper. A warm ground
+   pushes the up-colour toward orange and blurs it into the warn and metal-gold
+   hues, which are the three colours a reader must tell apart instantly.
+
    Components use the semantic names below; values change per theme only.
    --------------------------------------------------------------------------- */
+
+/* Self-hosted Roboto (latin subsets only; Chinese stays on the system stack, see
+   --font-sans). font-display is `block`, not `swap`, on purpose: with `swap` the
+   first paint uses the system UI face, whose figures are proportional, and the
+   swap to Roboto's tabular figures re-flows every column of a quote table once.
+   `block` shows blank space for a few milliseconds instead, and these files are
+   local and small enough that the 3s block-period timeout never fires. Do not
+   "fix" this to swap. */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/fonts/Roboto-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url("/fonts/RobotoCondensed-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/fonts/RobotoMono-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 /* Touch screens (no hover): pressed states for rows and cards. */
 @custom-variant touch (@media (hover: none));
 
 @theme {
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  /* Roboto for latin and figures, the condensed cut for headings and table heads (its narrow
+     width keeps long instrument names from wrapping), Roboto Mono for codes and timestamps.
+     Chinese has no webfont here on purpose: a full CJK face is 5-10MB and would wreck the first
+     paint, so 微软雅黑 / 苹方 stay on the system. */
+  --font-sans: "Roboto", "Roboto Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "HarmonyOS Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  /* The condensed cut, for headings, table heads and instrument codes only. */
+  --font-condensed: "Roboto Condensed", "Roboto", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 
   /* Semantic colours. */
   --color-bg: var(--bg);
@@ -42,11 +85,13 @@
   --color-accent-softer: var(--accent-softer);
   --color-accent-contrast: var(--accent-contrast);
   --color-note: var(--note);
+  /* Heat and "hot" only (how loud a topic is). Never a price direction: --up is that. */
   --color-hot: var(--hot);
   --color-hot-soft: var(--hot-soft);
   --color-amber: var(--amber);
   --color-amber-ink: var(--amber-ink);
   --color-amber-soft: var(--amber-soft);
+  /* A completed action only. Never a price direction: --down is that. */
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-ok-ink: var(--ok-ink);
@@ -54,6 +99,29 @@
   --color-rank-2: var(--rank-2);
   --color-rank-3: var(--rank-3);
   --color-rank-rest: var(--rank-rest);
+
+  /* Market directions. Chinese convention: up is red, down is green (the reverse of the
+     US and Europe). --up / --down are the text-grade steps (>= 4.5:1 on --bg); the -strong
+     steps are for numerals 20px and up; the -soft steps are row grounds and badge fills and
+     are never used as a text colour. Flat is grey on purpose: a level market has no
+     direction to report, and painting it red or green invents one. */
+  --color-up: var(--up);
+  --color-up-strong: var(--up-strong);
+  --color-up-soft: var(--up-soft);
+  --color-down: var(--down);
+  --color-down-strong: var(--down-strong);
+  --color-down-soft: var(--down-soft);
+  --color-flat: var(--flat);
+  --color-flat-soft: var(--flat-soft);
+  /* Data that may have gone stale, and an instruction to treat it with care. */
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  /* Extreme moves. At most one per screen. */
+  --color-alert: var(--alert);
+  /* Instrument gold. 3.06:1 on --bg, so it clears the 3:1 non-text bar and may be a rule or
+     a chart line. It is never a text colour, and never chrome: gold this site's data is about
+     gold, so a gold brand would make the reader unable to tell brand from instrument. */
+  --color-metal-gold: var(--metal-gold);
 
   /* Radius scale: mark 5 (inline code, kbd, tiny tags and swatches), control 8 (inputs, small
      blocks), tile 10 (list rows, hover areas), card 12, panel 14 (wells, pictures), sheet 16 (dialogs,
@@ -64,6 +132,16 @@
   --radius-card: 12px;
   --radius-panel: 14px;
   --radius-sheet: 16px;
+  /* Data blocks (quote tables, ranking tables) take no radius: a table is a grid, and rounded
+     corners leave a notch where a column meets the frame. */
+  --radius-table: 0px;
+
+  /* Row heights, the density scale. data is a quote/ranking table row; list is a tappable row
+     on a phone and sits at the 44px touch-target floor. */
+  --row-h-data: 32px;
+  --row-h-data-lg: 36px;
+  --row-h-head: 28px;
+  --row-h-list: 44px;
 
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 
@@ -82,53 +160,79 @@
      and a 21:9 screen one of about 2.7:1. 236px is the sidebar and the main area's padding. */
   --page-max-wide: max(1200px, calc(270dvh - 236px));
   --page-max-reading: max(1100px, calc(200dvh - 236px));
+  /* Data pages (the quote bar, the hot ranking) fill more of a wide screen than the reading
+     pages do: they are grids of numbers, and a grid that stops at 1200px on a 21:9 display
+     leaves columns empty rather than filled. */
+  --page-max-data: max(1440px, calc(300dvh - 236px));
   /* The phone shell (below lg): the top bar's height, which sticky headers inside pages sit below, and
      side gutters that keep clear of the notch in landscape. The desktop shell has no top bar. */
   --bar-h: 48px;
   --gutter-l: max(16px, env(safe-area-inset-left));
   --gutter-r: max(16px, env(safe-area-inset-right));
   color-scheme: light;
-  --bg: #faf9f6;
-  --bg-sunk: #f3f3ef;
-  --bg-muted: #e9ede9;
+  --bg: #f7f8f9;
+  --bg-sunk: #eff2f2;
+  --bg-muted: #e9edee;
   --surface: #ffffff;
-  --surface-2: #fdfdfb;
+  --surface-2: #fbfcfc;
   --raised: #ffffff;
-  --sidebar: #fdfdfb;
-  --daybar: #f0f2ee;
-  --field: #eef1ed;
-  --ink: #202a30;
+  --sidebar: #fbfcfc;
+  --daybar: #f0f2f3;
+  --field: #eef1f2;
+  --ink: #182024;
   --ink-2: #303c42;
   --ink-3: #59656b;
   --ink-4: #657176;
-  --line: #dfe4e1;
-  --line-strong: #d1d9d5;
-  --line-soft: #e9ede9;
+  --line: #dfe4e5;
+  --line-strong: #c8d1d3;
+  --line-soft: #ebeff0;
   --accent: #176b75;
-  --accent-ink: #145f68;
+  --accent-ink: #0f545c;
   --accent-soft: rgba(23, 107, 117, 0.08);
   --accent-softer: rgba(23, 107, 117, 0.05);
   --accent-contrast: #ffffff;
   --note: #526f72;
+  /* How loud a topic is. Not a price direction. */
   --hot: #b3402a;
   --hot-soft: rgba(179, 64, 42, 0.08);
   --amber: #b8873a;
   --amber-ink: #7c5a24;
   --amber-soft: rgba(184, 135, 58, 0.1);
+  /* An action that succeeded. Not a price direction. */
   --ok: #2f7d5c;
   --ok-soft: rgba(47, 125, 92, 0.1);
   --ok-ink: #2a6e51;
+  /* Market directions. Chinese convention: up red, down green.
+     Deliberately not #e74c3c (3.8:1, and an alarm red that collides with --warn) and not
+     #27ae60 (2.4:1, and it reads as "action succeeded"). */
+  --up: #c0362c;
+  --up-strong: #a32a20;
+  --up-soft: rgba(192, 54, 44, 0.08);
+  --down: #14804f;
+  --down-strong: #0f6840;
+  --down-soft: rgba(20, 128, 79, 0.08);
+  /* Flat, and "no baseline to compare against". Never red, never green. */
+  --flat: #59656b;
+  --flat-soft: rgba(89, 101, 107, 0.08);
+  /* Stale or uncertain data. Not #eab308: 1.9:1 is unusable, which is the trap of reaching
+     for Tailwind's yellow-500 as a warning colour. */
+  --warn: #8a5e12;
+  --warn-soft: rgba(138, 94, 18, 0.1);
+  --alert: #b3261e;
+  /* Instrument gold: 3.06:1, clears the 3:1 non-text bar, so rules and chart lines may use it.
+     Text may not. */
+  --metal-gold: #b8860b;
   --rank-1: #b3402a;
   --rank-2: #a3642f;
   --rank-3: #96702e;
   --rank-rest: #6b7684;
-  --shadow-card: 0 1px 2px rgba(32, 42, 48, 0.025);
-  --shadow-card-hover: 0 3px 12px rgba(32, 42, 48, 0.055);
+  --shadow-card: 0 1px 2px rgba(24, 32, 36, 0.025);
+  --shadow-card-hover: 0 3px 12px rgba(24, 32, 36, 0.055);
   --shadow-soft: 0 4px 12px rgba(28, 39, 51, 0.06);
   --shadow-thumb: 0 1px 2px rgba(28, 39, 51, 0.1), 0 1px 1px rgba(28, 39, 51, 0.04);
   --shadow-pop: 0 12px 32px rgba(28, 39, 51, 0.12);
   --prose-ink: #26323a;
-  --code-bg: #f6f7f4;
+  --code-bg: #f4f6f6;
   --code-keyword: #006d77;
   --code-string: #2f6f44;
   --code-number: #9a6700;
@@ -146,36 +250,58 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #13191c;
-  --bg-sunk: #182024;
-  --bg-muted: #202a2f;
-  --surface: #1a2226;
-  --surface-2: #1d272b;
-  --raised: #202a2f;
-  --sidebar: #161e21;
-  --daybar: #182024;
+  /* No pure black: the darkest step is a cool near-black, and the levels above it are laid out
+     by lightness (bg -> surface -> bg-sunk) rather than by stacking shadows. */
+  --bg: #14191c;
+  --bg-sunk: #202a2e;
+  --bg-muted: #273236;
+  --surface: #1b2226;
+  --surface-2: #1f272b;
+  --raised: #202a2e;
+  --sidebar: #171e21;
+  --daybar: #1a2225;
   --field: rgba(255, 255, 255, 0.06);
-  --ink: #e7eceb;
-  --ink-2: #d2dada;
-  --ink-3: #a5b0b3;
-  --ink-4: #89979d;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.12);
-  --line-soft: rgba(255, 255, 255, 0.06);
-  --accent: #12ccd8;
-  --accent-ink: #2ce2e8;
-  --accent-soft: rgba(18, 204, 216, 0.12);
-  --accent-softer: rgba(18, 204, 216, 0.06);
+  --ink: #e9edee;
+  --ink-2: #d3dadb;
+  --ink-3: #a6b0b3;
+  --ink-4: #8a969a;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --line-soft: rgba(255, 255, 255, 0.055);
+  /* The dark accent is the design system's #3FBCC8, not AIHOT's #12ccd8. The lighter cyan was
+     8.99:1 on this ground against the locked value's 7.79:1 — both clear AA, so this is not a
+     legibility fix, it is the token Spec §8.1 locks and the rest of the dark palette already
+     follows. The alpha companions are derived from it, so the tints stay in step. */
+  --accent: #3fbcc8;
+  --accent-ink: #6fd4de;
+  --accent-soft: rgba(63, 188, 200, 0.12);
+  --accent-softer: rgba(63, 188, 200, 0.06);
   --accent-contrast: #000000;
   --note: #8fb8a8;
+  /* Heat, not a price direction. */
   --hot: #d86a52;
   --hot-soft: rgba(216, 106, 82, 0.12);
   --amber: #d3b26a;
   --amber-ink: #d3b26a;
   --amber-soft: rgba(211, 178, 106, 0.12);
+  /* A completed action, not a price direction. */
   --ok: #5fc79a;
   --ok-soft: rgba(95, 199, 154, 0.12);
   --ok-ink: #7fd1ad;
+  /* On a dark ground the text and large-numeral steps converge: the ground is already dark, so
+     the lighter 5.4:1 step carries numerals of any size. */
+  --up: #e2705f;
+  --up-strong: #e2705f;
+  --up-soft: rgba(226, 112, 95, 0.12);
+  --down: #35b37c;
+  --down-strong: #35b37c;
+  --down-soft: rgba(53, 179, 124, 0.12);
+  --flat: #8a969a;
+  --flat-soft: rgba(138, 150, 154, 0.12);
+  --warn: #d0a34a;
+  --warn-soft: rgba(208, 163, 74, 0.12);
+  --alert: #e2705f;
+  --metal-gold: #c9a227;
   --rank-1: #d86a52;
   --rank-2: #d18a5e;
   --rank-3: #d3b26a;
@@ -193,7 +319,7 @@
   --code-title: #ab9df2;
   --code-variable: #fc9867;
   --code-meta: #ff6188;
-  --selection: rgba(18, 204, 216, 0.22);
+  --selection: rgba(63, 188, 200, 0.22);
 }
 
 @layer base {
@@ -235,13 +361,83 @@
 }
 
 @layer components {
+  /* Every figure in the product goes through here. Tabular figures are not optional: with
+     proportional ones a column of prices cannot be scanned, because each digit is a different
+     width and the eye has to align them one by one. `lnum` turns on lining figures so digits
+     sit on the baseline rather than mixing into the text's oldstyle set. Letter-spacing is
+     pinned to 0: tracking would break the alignment tabular already bought. */
   .num {
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    letter-spacing: 0;
   }
   .mono {
     font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: "tnum" 1, "zero" 1;
   }
+  /* Roboto Mono's glyphs sit larger and wider than Roboto's, so mono text set at the same px reads
+     a size bigger. The optical correction is a scale, but a scale cannot live on `.mono` itself:
+     Tailwind's `text-[Npx]` utilities are in a later cascade layer and would beat it, so the rule
+     would apply to the few mono runs without an explicit size and silently do nothing everywhere
+     else. It is an opt-in class for that reason, and the next size up is the alternative. */
+  .mono-scale { font-size: 0.92em; }
+  /* Chinese ships at 400 and 700 only. Any weight between them is synthesised by the OS, and a
+     synthesised Chinese bold is visibly worse than a real one: thin strokes double up and the
+     edges go furry. So the two real weights carry Chinese text, and the intermediate weights are
+     reserved for the containers that are pure Latin and digits, where Roboto does have 500/600
+     cuts. This is a font stack declaration, not a hope: `font-synthesis-weight: none` stops the
+     fake bold from being drawn at all, so an accidental 600 on Chinese degrades to 400 rather
+     than to a smudged 600. */
+  .zh-400 { font-weight: 400; }
+  .zh-700 { font-weight: 700; }
+  :lang(zh), :lang(zh-CN) {
+    font-synthesis-weight: none;
+  }
+
+  /* Money and moves. Three encodings run together and all three are load-bearing: colour for
+     the eye, an explicit + or - for the reader who cannot separate the hues, and an arrow for
+     direction at a glance. Colour alone would fail WCAG 1.4.1 and would fail a reader with
+     deuteranopia outright. */
+  .val { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; letter-spacing: 0; font-variant-ligatures: none; }
+  .val-up { color: var(--up); }
+  .val-down { color: var(--down); }
+  .val-flat { color: var(--flat); }
+  .num-lg { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; letter-spacing: 0; color: var(--up-strong); }
+  .num-lg[data-dir="down"] { color: var(--down-strong); }
+  .num-lg[data-dir="flat"] { color: var(--flat); }
+  /* A number with no reading: the baseline was not collected, or the value is not available.
+     An em dash, never a 0 and never a fabricated percentage. */
+  .val-none { color: var(--flat); }
+
+  /* Data tables: no vertical rules, no zebra. Column rules cut a grid of figures into strips and
+     a coloured cell on a tinted band moires. One hairline between rows, and the head sticks
+     under the phone bar so the column meanings stay on screen while the body scrolls. */
+  .data-table { border-collapse: separate; border-spacing: 0; }
+  .data-table th, .data-table td { border-bottom: 1px solid var(--line-soft); padding-inline: 12px; }
+  .data-table thead th {
+    position: sticky;
+    top: var(--bar-h);
+    z-index: 1;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-strong);
+    font-family: var(--font-condensed);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+  }
+  /* Numeric columns and their heads align right; text columns stay left. */
+  .data-table th.num, .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+  /* Hover tints the row and nothing else. Changing the border instead makes adjacent rows
+     jitter by a pixel as the pointer moves down the column. */
+  .data-table tbody tr { transition: background-color 120ms var(--ease-out-quart); }
+  .data-table tbody tr:hover { background: var(--bg-sunk); }
+  /* The instrument name column stays put when the table scrolls sideways under it. */
+  .data-table .sticky-col { position: sticky; left: 0; background: var(--bg); z-index: 1; }
+  .data-table tbody tr:hover .sticky-col { background: var(--bg-sunk); }
+  .data-table thead th.sticky-col { z-index: 2; }
+
   .chip {
     display: inline-flex;
     align-items: center;
@@ -363,8 +559,6 @@
 @keyframes aihot-sheet-in { from { transform: translateY(100%); } }
 @keyframes aihot-sheet-out { to { transform: translateY(100%); } }
 @keyframes aihot-swap-in { from { opacity: 0; transform: scale(0.7); } }
-@keyframes aihot-bump { from { transform: scale(0.7); } 55% { transform: scale(1.08); } to { transform: scale(1); } }
-@keyframes aihot-pop-in { from { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.05); } to { transform: scale(1); } }
 @keyframes aihot-reveal { from { clip-path: inset(-12px 100% -12px -12px); } to { clip-path: inset(-12px -12px -12px -12px); } }
 .anim-collapse-in { animation: aihot-collapse-in var(--anim-ms, 240ms) var(--ease-out-quart) both; }
 .anim-collapse-out { animation: aihot-collapse-out var(--anim-ms, 240ms) var(--ease-out-quart) both; }
@@ -378,9 +572,12 @@
 .anim-sheet-in { animation: aihot-sheet-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .anim-sheet-out, .anim-fade-out > .sheet-panel { animation: aihot-sheet-out 220ms cubic-bezier(0.4, 0, 1, 1) both; }
 .anim-swap-in { animation: aihot-swap-in 120ms var(--ease-out-quart) both; }
-.anim-bump { animation: aihot-bump 320ms var(--ease-out-quart) both; }
-.anim-pop-in { animation: aihot-pop-in 460ms var(--ease-out-quart) both; }
 .anim-reveal { animation: aihot-reveal 900ms var(--ease-out-quart) both; }
+/* A star or a like landing used to pop: scale past 1 and settle back. The overshoot is the
+   decoration — it announces nothing the colour and the filled shape have not already said, and
+   a 320ms bounce on a control the reader may be tapping repeatedly turns confirmation into
+   noise. A short fade carries the same confirmation. */
+.anim-confirm { animation: aihot-fade-in 140ms var(--ease-out-quart) both; }
 
 /* The theme switch cross-fades the whole document. */
 ::view-transition-old(root),

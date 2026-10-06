@@ -25,35 +25,35 @@ before(async () => {
   newer = await report(2, 1);
   corrected = await report(3, 2, "qwen");
   // All scenarios share this one cold index, then exercise the cache without waiting a minute.
-  await loadTopicPage("minimax", 1);
+  await loadTopicPage("wgc", 1);
 });
 after(async () => {
   await stopBoss();
   await closeDb();
 });
 
-async function report(n: number, hoursAgo: number, subject = "minimax"): Promise<string> {
+async function report(n: number, hoursAgo: number, subject = "wgc"): Promise<string> {
   const at = new Date(Date.now() - hoursAgo * 3600_000);
   const { articleId } = await upsertMaterial({
     sourceId: SOURCE, url: `https://example.com/withdrawal-${T}-${n}`, title: `MiniMax report ${n}`, bodyText: "body", bodyHtml: "<p>body</p>", bodyStatus: "ok", via: "fetch", publishedAt: at,
   });
   await sql`UPDATE articles SET discovered_at = ${at}, timeline_at = ${at}, grouped_at = now() WHERE id = ${articleId}`;
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, score, selected, subjects, tags)
-            VALUES (${articleId}, 1, 'rule', 'pass', 'ai-models', ${`${subject} 消息 ${n}`}, '摘要', 80, true, ${[subject]}, ${['模型发布']})`;
+            VALUES (${articleId}, 1, 'rule', 'pass', 'precious-metals', ${`${subject} 消息 ${n}`}, '摘要', 80, true, ${[subject]}, ${['数据/持仓']})`;
   await publishArticle(articleId, { releasedAt: new Date(at.getTime() + 60_000) });
   return articleId;
 }
 
 test("a withdrawn report leaves the topic page and the index while the topic index is still cached", async () => {
   // Both are read into the cached index.
-  const before = await loadTopicPage("minimax", 1);
+  const before = await loadTopicPage("wgc", 1);
   assert.ok(before?.items.some((i) => i.id === newer));
-  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "minimax")?.latest?.title, `minimax 消息 2`);
+  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "wgc")?.latest?.title, `wgc 消息 2`);
 
   await sql`UPDATE publications SET visibility = 'withdrawn' WHERE article_id = ${newer}`;
-  const page = await loadTopicPage("minimax", 1);
-  assert.notEqual(page?.topic.latest?.title, `minimax 消息 2`, "the page's last update");
-  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "minimax")?.latest?.title, `minimax 消息 1`, "the index page's headline");
+  const page = await loadTopicPage("wgc", 1);
+  assert.notEqual(page?.topic.latest?.title, `wgc 消息 2`, "the page's last update");
+  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "wgc")?.latest?.title, `wgc 消息 1`, "the index page's headline");
   assert.deepEqual(page?.items.map((i) => i.id), [older], "the list (rows were always checked again)");
 });
 

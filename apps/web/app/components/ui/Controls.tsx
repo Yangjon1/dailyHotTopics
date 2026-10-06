@@ -1,5 +1,5 @@
 import type { ReactNode, SelectHTMLAttributes } from "react";
-import { IconCheck, IconChevronDown } from "../icons";
+import { IconCheckFilled, IconChevronDown } from "../icons";
 
 type Variant = "primary" | "secondary";
 const VARIANTS: Record<Variant, string> = {
@@ -43,7 +43,10 @@ export function ToggleChip({ on, onToggle, children }: { on: boolean; onToggle: 
       className={`inline-flex h-11 shrink-0 lg:h-8 select-none items-center gap-1.5 whitespace-nowrap rounded-full border pl-2 pr-3.5 text-[13px] font-medium transition-colors duration-150 active:scale-[0.98] ${on ? "border-accent/35 bg-accent-soft text-accent" : "border-line-strong bg-surface text-ink-2 hover:border-ink-4 hover:text-ink"}`}
     >
       <span aria-hidden="true" className={`inline-flex size-4 items-center justify-center rounded-full border transition-colors duration-150 ${on ? "border-accent bg-accent text-accent-contrast" : "border-line-strong"}`}>
-        {on && <IconCheck size={11} strokeWidth={3} />}
+        {/* Filled rather than a heavier stroke: at 11px inside a 16px disc, a 1.5 stroke would be a
+            grey hairline, and the one way to give a mark more presence at that size is to fill it.
+            The stroke scale stays at three values; this does not become a fourth. */}
+        {on && <IconCheckFilled size={11} />}
       </span>
       {children}
     </button>

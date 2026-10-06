@@ -18,6 +18,8 @@ import { SourceAvatar } from "../../components/ui/SourceAvatar";
 import { Halftone } from "./Halftone";
 import { Nameplate } from "./Nameplate";
 import { IssueDots } from "./IssueDots";
+import { readOfficial } from "./official";
+import { OfficialTallyLine } from "./OfficialTallyLine";
 import { monthDay } from "../../lib/format";
 import { EDITION, KIND_LABEL, MOTTO, dateLine, dateMark, headline, metricItems, neighbourLabel, reportPath, shortDay } from "./format";
 
@@ -31,6 +33,9 @@ const before = (phrase: string, noun: string) => phrase.slice(0, -noun.length);
 function Masthead({ report, index }: { report: ReportDetail; index: ReportNavigationEntry[] }) {
   const mark = dateMark(report.kind, report.key);
   const label = KIND_LABEL[report.kind];
+  // Null on issues written before the tally existed, and the masthead then simply has no such line.
+  // The api hands this over already worded (see report/official.ts), so nothing here re-derives it.
+  const official = readOfficial(report.official);
   return (
     <header className="pt-5 lg:pt-0">
       <div className="flex items-center justify-between gap-4 text-[12px] text-ink-4">
@@ -54,7 +59,10 @@ function Masthead({ report, index }: { report: ReportDetail; index: ReportNaviga
         <div className="flex shrink-0 items-stretch well rounded-panel">
           <div className="flex w-[112px] flex-col items-center justify-center px-2 py-3 text-center @[880px]:w-[150px] @[880px]:py-4">
             <span className="text-[11px] tracking-[0.2em] text-ink-4">第 {report.issueNumber} 期</span>
-            <Halftone seed={`${report.kind}-${report.key}-date`} className="num mt-2 whitespace-nowrap text-[44px] font-black leading-[0.95] tracking-[-0.04em] text-ink @[880px]:text-[64px]">
+            {/* The date figure. 700 rather than 900, and tracking at zero: at 64px an ultra-heavy
+                cut with negative tracking is the loudest thing on the page, and it is only a
+                date. Roboto is hosted at 400 alone, so 900 was being synthesised anyway. */}
+            <Halftone seed={`${report.kind}-${report.key}-date`} className="num mt-2 whitespace-nowrap text-[38px] font-bold leading-[1] text-ink @[880px]:text-[52px]">
               {mark.figure}
             </Halftone>
             <span className="mt-2 text-[11.5px] text-ink-2">{mark.top}</span>
@@ -71,11 +79,20 @@ function Masthead({ report, index }: { report: ReportDetail; index: ReportNaviga
             <span className="text-[12px] text-ink-4">{m.unit}</span>
           </span>
         ))}
+        {/*
+          The official-release line, in the masthead's three states. It is its own element rather
+          than another entry in the metrics row because its shape is a sentence, not a value with a
+          unit: on a quiet day there is no number to show at all, and on an incomplete day the number
+          has to sit beside a warning rather than among the day's other counts. Reading the state is
+          in features/report/official.tsx; the wording comes from the api.
+        */}
+        {official && <OfficialTallyLine state={official} />}
         <span className="ml-auto whitespace-nowrap text-[12px] text-ink-4">约 {report.readingMinutes} 分钟读完</span>
       </div>
     </header>
   );
 }
+
 
 /** Source face and name, and the site's 一手 mark when first-hand. */
 function Source({ c, size = 16 }: { c: ReportCitation; size?: number }) {
@@ -285,7 +302,7 @@ function FrontPage({ report, pages, leadStory, count }: { report: ReportDetail; 
       <div id={leadStory ? (anchorOf(leadStory) ?? undefined) : undefined} className="flex min-w-0 scroll-mt-[calc(var(--bar-h)+1.5rem)] flex-col py-7 @[880px]:border-r @[880px]:border-line @[880px]:py-10 @[880px]:pr-10">
         <Kicker>{byEvent ? "头条" : "本期导读"}</Kicker>
         {cover && wide && <LeadPicture cover={cover} onError={() => setBroken(cover.url)} priority className="order-2 mt-5 @[560px]:order-1" />}
-        <h2 className="order-1 mt-4 text-[32px] font-black leading-[1.28] tracking-[-0.03em] text-ink [text-wrap:balance] @[520px]:text-[40px] @[560px]:order-2 @[1040px]:text-[48px] @[1040px]:leading-[1.22]">
+        <h2 className="order-1 mt-4 text-[30px] font-bold leading-[1.34] tracking-[-0.01em] text-ink [text-wrap:balance] @[520px]:text-[36px] @[560px]:order-2 @[1040px]:text-[42px] @[1040px]:leading-[1.28]">
           {leadStory?.itemId ? (
             <IntentLink viewTransition to={`/items/${leadStory.itemId}`} className="transition-colors hover:text-accent">
               {title}
@@ -321,7 +338,7 @@ function FrontPage({ report, pages, leadStory, count }: { report: ReportDetail; 
                 if (!h.available) {
                   return (
                     <li key={keyOf(h)} className="flex gap-3.5 border-b border-line py-4">
-                      <span className="num w-6 shrink-0 text-[26px] font-black leading-[0.95] tracking-[-0.03em] text-ink-4">{i + 1}</span>
+                      <span className="num w-6 shrink-0 text-[22px] font-bold leading-none text-ink-4">{i + 1}</span>
                       <span className="min-w-0 text-[13.5px] leading-[1.55] text-ink-4">
                         <span className="line-through">{h.title}</span>
                         <span className="mt-1 block text-[12px]">{WITHDRAWN_NOTE}</span>
@@ -332,7 +349,7 @@ function FrontPage({ report, pages, leadStory, count }: { report: ReportDetail; 
                 return (
                   <li key={keyOf(h)}>
                     <Link to={to} viewTransition={to.startsWith("/")} className="group flex gap-3.5 border-b border-line py-4">
-                      <span className="num w-6 shrink-0 text-[26px] font-black leading-[0.95] tracking-[-0.03em] text-accent">{i + 1}</span>
+                      <span className="num w-6 shrink-0 text-[22px] font-bold leading-none text-accent">{i + 1}</span>
                       <span className="min-w-0">
                         <span className="block text-[15px] font-bold leading-[1.55] text-ink transition-colors group-hover:text-accent">{h.title}</span>
                         <span className="mt-1.5 block truncate text-[12px] text-ink-4">{h.sourceName}</span>
@@ -370,8 +387,8 @@ export function SectionPage({ id, no, label, children }: { id: string; no?: numb
   return (
     <section id={id} aria-labelledby={`${id}-t`} className="scroll-mt-[calc(var(--bar-h)+1.5rem)] pt-12 @[880px]:pt-16">
       <header className="flex items-baseline gap-3 border-b border-line-strong pb-3 @[880px]:gap-4">
-        {no !== undefined && <span className="num text-[26px] font-black leading-none tracking-[-0.03em] text-accent @[880px]:text-[30px]">{pad(no)}</span>}
-        <h2 id={`${id}-t`} className="min-w-0 text-[24px] font-black leading-[1.25] tracking-[-0.02em] text-ink @[880px]:text-[28px]">
+        {no !== undefined && <span className="num text-[22px] font-bold leading-none text-accent @[880px]:text-[26px]">{pad(no)}</span>}
+        <h2 id={`${id}-t`} className="min-w-0 text-[22px] font-bold leading-[1.35] tracking-[-0.01em] text-ink @[880px]:text-[26px]">
           {label}
         </h2>
       </header>

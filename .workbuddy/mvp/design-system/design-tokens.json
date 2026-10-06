@@ -1,0 +1,330 @@
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "meta": {
+    "project": "precious-metals-hot-site",
+    "generated": "2026-10-05",
+    "author": "颜好看",
+    "register": "product",
+    "platform": "web",
+    "theme": "light-primary",
+    "density": 7,
+    "motionIntensity": 3,
+    "designVariance": 4
+  },
+
+  "color": {
+    "bg":           { "value": "#F7F8F9", "type": "color", "role": "A1-identity", "note": "冷中性灰白。原 #faf9f6 暖纸会把红推向橙，与警示/金产生歧义" },
+    "bgSunk":       { "value": "#EFF2F2", "type": "color", "role": "A1-identity", "note": "凹陷面板、表格 hover 行底" },
+    "surface":      { "value": "#FFFFFF", "type": "color", "role": "A1-identity" },
+    "surface2":     { "value": "#FBFCFC", "type": "color", "role": "A1-identity" },
+    "ink":          { "value": "#182024", "type": "color", "role": "A1-identity", "note": "13.4:1" },
+    "ink2":         { "value": "#303C42", "type": "color", "role": "A1-identity" },
+    "ink3":         { "value": "#59656B", "type": "color", "role": "A1-identity", "note": "5.6:1" },
+    "ink4":         { "value": "#657176", "type": "color", "role": "A1-identity", "note": "4.7:1，不得低于 12px 使用" },
+    "line":         { "value": "#DFE4E5", "type": "color", "role": "A1-identity" },
+    "lineSoft":     { "value": "#EBEFF0", "type": "color", "role": "A1-identity", "note": "表格横线" },
+    "lineStrong":   { "value": "#C8D1D3", "type": "color", "role": "A1-identity", "note": "表头下沿" },
+    "accent":       { "value": "#176B75", "type": "color", "role": "A1-identity", "note": "品牌青，5.8:1，保留 AIHOT 原值。与涨跌色正交" },
+    "accentInk":    { "value": "#0F545C", "type": "color", "role": "A1-identity", "note": "accent hover" },
+    "accentOn":     { "value": "#FFFFFF", "type": "color", "role": "A1-identity" },
+    "accentSoft":   { "value": "rgba(23,107,117,0.08)", "type": "color", "role": "A1-identity", "note": "选中行底" },
+
+    "up":           { "value": "#C0362C", "type": "color", "role": "A2-semantic", "note": "涨（红，中国约定）。5.19:1 on bg。财务报表深砖红，非 #E74C3C（3.8:1 不合格且与警示撞语义）" },
+    "upStrong":     { "value": "#A32A20", "type": "color", "role": "A2-semantic", "note": "≥20px 大号涨。7.0:1" },
+    "upSoft":       { "value": "rgba(192,54,44,0.08)", "type": "color", "role": "A2-semantic", "note": "行底/徽章底，不可用于文字" },
+    "down":         { "value": "#14804F", "type": "color", "role": "A2-semantic", "note": "跌（绿）。4.67:1 on bg。非 #27AE60（2.4:1 不合格且像操作成功）" },
+    "downStrong":   { "value": "#0F6840", "type": "color", "role": "A2-semantic", "note": "7.4:1" },
+    "downSoft":     { "value": "rgba(20,128,79,0.08)", "type": "color", "role": "A2-semantic", "note": "行底/徽章底" },
+    "flat":         { "value": "#59656B", "type": "color", "role": "A2-semantic", "note": "平盘/无变化，5.64:1。平盘一律用灰，绝不用红绿" },
+    "flatSoft":     { "value": "rgba(89,101,107,0.08)", "type": "color", "role": "A2-semantic" },
+    "warn":         { "value": "#8A5E12", "type": "color", "role": "A2-semantic", "note": "风险提示，5.35:1，12px 可用。非 #EAB308（1.9:1 完全不可用）" },
+    "warnSoft":     { "value": "rgba(138,94,18,0.10)", "type": "color", "role": "A2-semantic" },
+    "alert":        { "value": "#B3261E", "type": "color", "role": "A2-semantic", "note": "极端波动，每屏 ≤1" },
+    "metalGold":    { "value": "#B8860B", "type": "color", "role": "C-extension", "note": "3.06:1 on #F7F8F9（2026-10-05 实测修正，原 2.9:1 为误算）。满足 WCAG 1.4.11 非文本 3:1，可用于图形；仍禁止文字色（文字需 4.5:1）。仅黄金图表曲线 / 贵金属分类 1px 规则线" },
+
+    "hot":          { "value": "#b3402a", "type": "color", "role": "保留-语义收窄", "note": "仅热度/爆。禁止当涨色用" },
+    "hotSoft":      { "value": "rgba(179,64,42,0.08)", "type": "color", "role": "保留-语义收窄" },
+    "ok":           { "value": "#2f7d5c", "type": "color", "role": "保留-语义收窄", "note": "仅操作成功。禁止当跌色用" },
+    "okSoft":       { "value": "rgba(47,125,92,0.10)", "type": "color", "role": "保留-语义收窄" },
+
+    "rank1":        { "value": "#b3402a", "type": "color", "role": "保留" },
+    "rank2":        { "value": "#a3642f", "type": "color", "role": "保留" },
+    "rank3":        { "value": "#96702e", "type": "color", "role": "保留" },
+    "rankRest":     { "value": "#6b7684", "type": "color", "role": "保留" }
+  },
+
+  "colorDark": {
+    "bg":           { "value": "#14191C", "type": "color" },
+    "bgSunk":       { "value": "#202A2E", "type": "color" },
+    "surface":      { "value": "#1B2226", "type": "color" },
+    "surface2":     { "value": "#1F272B", "type": "color" },
+    "ink":          { "value": "#E9EDEE", "type": "color" },
+    "ink2":         { "value": "#D3DADB", "type": "color" },
+    "ink3":         { "value": "#A6B0B3", "type": "color" },
+    "ink4":         { "value": "#8A969A", "type": "color" },
+    "line":         { "value": "rgba(255,255,255,0.09)", "type": "color" },
+    "lineSoft":     { "value": "rgba(255,255,255,0.055)", "type": "color" },
+    "lineStrong":   { "value": "rgba(255,255,255,0.14)", "type": "color" },
+    "accent":       { "value": "#3FBCC8", "type": "color" },
+    "up":           { "value": "#E2705F", "type": "color", "note": "5.4:1 on dark bg" },
+    "down":         { "value": "#35B37C", "type": "color", "note": "5.6:1 on dark bg" },
+    "flat":         { "value": "#8A969A", "type": "color" },
+    "warn":         { "value": "#D0A34A", "type": "color" },
+    "metalGold":    { "value": "#C9A227", "type": "color" },
+    "note": "不用纯黑 #000；层级用亮度递进（#14191C → #1B2226 → #202A2E）而非阴影；不叠加发光边框与毛玻璃"
+  },
+
+  "font": {
+    "display":  { "value": "\"Roboto Condensed\", \"Archivo\", \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans SC\", sans-serif", "type": "fontFamily", "note": "标题/表头。窄体让长品种名不折行。Roboto Condensed 只作用于拉丁与数字，中文落系统字（Yahoo/Bloomberg 同款混排）" },
+    "body":     { "value": "\"Roboto\", \"Archivo\", \"PingFang SC\", \"Microsoft YaHei\", \"Noto Sans SC\", sans-serif", "type": "fontFamily", "note": "Roboto 骨架参照 DIN（金融终端事实标准字体），是本站仪器感的声音来源" },
+    "mono":     { "value": "\"Roboto Mono\", ui-monospace, \"Cascadia Mono\", Consolas, \"SFMono-Regular\", monospace", "type": "fontFamily", "note": "代码/API/Key/品种代码/秒级时间戳" },
+    "num":      { "value": "\"Roboto\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif", "type": "fontFamily", "note": "价格与涨跌幅专用，配 tabular-nums" },
+    "webfontPolicy": "中文不打包 webfont（思源全字集 5-10MB 会毁首屏）。Roboto/Roboto Condensed/Roboto Mono 三 woff2，font-display: swap，只 preload Roboto 400"
+  },
+
+  "fontSize": {
+    "2xs":  { "value": "11px",   "type": "dimension", "note": "表头/单位/脚注。数据文字绝对下限" },
+    "xs":   { "value": "12px",   "type": "dimension", "note": "元数据/时间戳/标签。正文绝对下限" },
+    "data": { "value": "13px",   "type": "dimension", "note": "表格单元格/价格/涨跌幅。密度核心" },
+    "sm":   { "value": "13.5px", "type": "dimension", "note": "列表摘要" },
+    "base": { "value": "14px",   "type": "dimension", "note": "正文" },
+    "md":   { "value": "16px",   "type": "dimension" },
+    "lg":   { "value": "18px",   "type": "dimension" },
+    "xl":   { "value": "20px",   "type": "dimension" },
+    "2xl":  { "value": "24px",   "type": "dimension", "note": "页标题" },
+    "3xl":  { "value": "32px",   "type": "dimension" },
+    "4xl":  { "value": "40px",   "type": "dimension" }
+  },
+
+  "lineHeight": {
+    "2xs":  { "value": "1.4" },
+    "xs":   { "value": "1.5" },
+    "data": { "value": "1.4" },
+    "sm":   { "value": "1.65" },
+    "base": { "value": "1.6" },
+    "md":   { "value": "1.5" },
+    "lg":   { "value": "1.4" },
+    "xl":   { "value": "1.35" },
+    "2xl":  { "value": "1.3" },
+    "3xl":  { "value": "1.2" },
+    "4xl":  { "value": "1.15" }
+  },
+
+  "letterSpacing": {
+    "tiny":     { "value": "0.02em", "type": "dimension", "note": "11px 表头/单位" },
+    "small":    { "value": "0.01em", "type": "dimension", "note": "12px 小字" },
+    "caps":     { "value": "0.08em", "type": "dimension", "note": "ALL CAPS / 周期表头 3D 30D YTD / 品种代码 AU9999" },
+    "number":   { "value": "0",      "type": "dimension", "note": "数字必须为 0，tabular 已保证等宽，加字距破坏对齐" },
+    "body":     { "value": "0",      "type": "dimension" },
+    "title":    { "value": "-0.01em to -0.02em", "type": "dimension", "note": "≥24px" }
+  },
+
+  "fontWeight": {
+    "read":      { "value": "400", "type": "fontWeight", "note": "正文/表格数字" },
+    "emphasize": { "value": "510", "type": "fontWeight", "note": "表头/小标题。Windows 中文回退 500" },
+    "announce":  { "value": "590", "type": "fontWeight", "note": "页标题/大号数字。Windows 中文回退 700" },
+    "warning":   { "value": "雅黑只有 400/700。中文正文只用这两档，中间字重仅对拉丁与数字生效，须在 Windows + Chrome/Edge 实测", "type": "fontWeight" }
+  },
+
+  "numericVariant": {
+    "tabular": { "value": "font-variant-numeric: tabular-nums; font-feature-settings: \"tnum\" 1, \"lnum\" 1; letter-spacing: 0;", "type": "fontFeatureSettings", "note": "强制项，非可选项。比例数字会让行情表列无法对齐" },
+    "monoSlash": { "value": "font-variant-numeric: tabular-nums slashed-zero;", "type": "fontFeatureSettings", "note": "0 与 O 可区分，用于价格与代码混排处" }
+  },
+
+  "spacing": {
+    "0":   { "value": "0",     "type": "dimension" },
+    "0.5": { "value": "2px",   "type": "dimension", "note": "表格单元格上下内边距、徽章" },
+    "1":   { "value": "4px",   "type": "dimension", "note": "图标与数字" },
+    "1.5": { "value": "6px",   "type": "dimension", "note": "行情行内元素间距" },
+    "2":   { "value": "8px",   "type": "dimension" },
+    "3":   { "value": "12px",  "type": "dimension", "note": "列表行垂直内边距 / 栅格 gap（从 16px 下调）" },
+    "4":   { "value": "16px",  "type": "dimension", "note": "卡片内边距（从 20/24px 下调）" },
+    "5":   { "value": "20px",  "type": "dimension", "note": "模块间距" },
+    "6":   { "value": "24px",  "type": "dimension" },
+    "8":   { "value": "32px",  "type": "dimension" },
+    "12":  { "value": "48px",  "type": "dimension", "note": "页面级节距（从 64px 下调）" },
+    "grid": { "value": "4px",  "type": "dimension", "note": "基准网格。禁止 5/7/13/22/30 等非标值" }
+  },
+
+  "rowHeight": {
+    "data":    { "value": "32px", "type": "dimension", "note": "行情表数据行" },
+    "dataLg":  { "value": "36px", "type": "dimension", "note": "舒适模式 / 可点击行" },
+    "head":    { "value": "28px", "type": "dimension", "note": "表头" },
+    "list":    { "value": "44px", "type": "dimension", "note": "移动端可点击列表行。WCAG 2.5.5 触摸目标下限" }
+  },
+
+  "radius": {
+    "mark":    { "value": "5px",  "type": "dimension", "note": "徽章/行内代码。保留" },
+    "control": { "value": "8px",  "type": "dimension", "note": "按钮/输入框。保留" },
+    "tile":    { "value": "10px", "type": "dimension", "note": "列表行。保留" },
+    "card":    { "value": "12px", "type": "dimension", "note": "卡片。上限，禁止 ≥24px 的过度圆滑" },
+    "panel":   { "value": "14px", "type": "dimension", "note": "wells/图片。保留" },
+    "sheet":   { "value": "16px", "type": "dimension", "note": "弹层。保留" },
+    "pill":    { "value": "9999px", "type": "dimension" },
+    "table":   { "value": "0",    "type": "dimension", "note": "行情表不加圆角。表格是网格，圆角破坏对齐感" }
+  },
+
+  "shadow": {
+    "card":       { "value": "0 1px 2px rgba(24,32,36,0.025)",    "type": "boxShadow", "note": "保留原值，已正确" },
+    "cardHover":  { "value": "0 3px 12px rgba(24,32,36,0.055)",  "type": "boxShadow" },
+    "soft":       { "value": "0 4px 12px rgba(28,39,51,0.06)",   "type": "boxShadow" },
+    "pop":        { "value": "0 12px 32px rgba(28,39,51,0.12)",  "type": "boxShadow" },
+    "flat":       { "value": "none", "type": "boxShadow", "note": "数据块默认无阴影" },
+    "rule":       { "value": "0 0 0 1px var(--line)", "type": "boxShadow", "note": "选中态轮廓" },
+    "forbidden":  { "value": "禁止 border + box-shadow blur ≥16px 同时出现（幽灵卡片）；禁止装饰性毛玻璃", "type": "none" }
+  },
+
+  "motion": {
+    "fast":     { "value": "120ms", "type": "duration", "note": "hover/选中。现状值" },
+    "base":     { "value": "150ms", "type": "duration", "note": "确认操作，收敛值" },
+    "enter":    { "value": "200-320ms", "type": "duration", "note": "下拉/弹层进入" },
+    "page":     { "value": "360-400ms", "type": "duration", "note": "页面 push/back 转场，保留现状" },
+    "ease":     { "value": "cubic-bezier(0.25, 1, 0.5, 1)", "type": "cubicBezier", "note": "--ease-out-quart，保留" },
+    "pageEase": { "value": "cubic-bezier(0.32, 0.72, 0, 1)", "type": "cubicBezier", "note": "页面转场，保留现状，非弹跳" },
+    "forbidden": { "value": "cubic-bezier(0.68, -0.55, 0.265, 1.55)", "type": "cubicBezier", "note": "P0 红线：禁止弹跳缓动" },
+    "cancelled": { "value": "anim-bump(320ms scale 1.08) / anim-pop-in(460ms)", "type": "none", "note": "MOTION=3，取消装饰性动效" },
+    "reducedMotion": { "value": "prefers-reduced-motion: reduce 全量降级，含 view-transition", "type": "none", "note": "现状已达标，保留" }
+  },
+
+  "layout": {
+    "sidebarW":         { "value": "236px", "type": "dimension", "note": "保留" },
+    "barH":             { "value": "48px",  "type": "dimension", "note": "手机顶栏，保留" },
+    "pageMaxReading":   { "value": "max(1100px, calc(200dvh - 236px))", "type": "dimension", "note": "文章/日报，保留" },
+    "pageMaxData":      { "value": "max(1440px, calc(300dvh - 236px))", "type": "dimension", "note": "行情/热榜/动态，新增。原 --page-max-wide 在 21:9 屏拉到 1900px 但无表格填充" },
+    "gridCols":         { "value": "12 / 8 / 4", "type": "none", "note": "桌面/平板/手机" },
+    "gridGap":          { "value": "12px", "type": "dimension", "note": "从 24px 下调" },
+    "sectionY":         { "value": "48px / 32px / 24px", "type": "dimension", "note": "桌面/平板/手机，从 80/48/32 下调以提密度" }
+  },
+
+  "breakpoint": {
+    "sm":   { "value": "641px",  "type": "dimension", "note": "保留。不动" },
+    "md":   { "value": "768px",  "type": "dimension", "note": "保留" },
+    "lg":   { "value": "961px",  "type": "dimension", "note": "保留。注意是 961px 而非 1024px，为平板横屏特意调过，改动会出回归" },
+    "xl":   { "value": "1280px", "type": "dimension" },
+    "2xl":  { "value": "1536px", "type": "dimension" }
+  },
+
+  "icon": {
+    "library":      { "value": "lucide-react", "type": "fontFamily", "note": "Spec 锁定单库，全项目统一不混用" },
+    "viewBox":      { "value": "24", "type": "dimension", "note": "与现有手写图标几何一致，迁移零差异" },
+    "inline":       { "value": "16px", "type": "dimension", "note": "行内：chip/表格单元/按钮内" },
+    "button":       { "value": "20px", "type": "dimension", "note": "按钮内/导航项" },
+    "standalone":   { "value": "24px", "type": "dimension", "note": "独立：空态/页头/分类入口" },
+    "strokeWidth":  { "value": "16px→1.5 / 20px→1.7 / 24px→1.75", "type": "none", "note": "唯一例外规则，不得出现第四个值。Lucide 默认 2 在 16px 下笔画粘连" },
+    "color":        { "value": "currentColor", "type": "color", "note": "一律继承，不传 color prop，由父级 text-* 决定" },
+    "fill":         { "value": "none", "type": "none", "note": "仅 GitHub 标 / BrandMark / Bookmark(已收藏) / BellRing(预警开启) 用 currentColor" },
+    "a11y":         { "value": "装饰性 aria-hidden=true + focusable=false；纯图标按钮必须 aria-label 且触摸目标 ≥44×44px", "type": "none" },
+    "forbidden":    { "value": "禁止 emoji 作功能图标；禁止同语义不同图标；禁止混用其他库或手写 SVG（Logo/品牌标/行情专用图形除外）", "type": "none" },
+    "rejected":     { "value": "Heroicons(292个,描边固定1.5) / Phosphor(每图标开销16-18×,50图标+33.9KB,6字重) / Radix(15×15网格,单入口+63KB@50) / Iconify+react-icons(单入口+81KB@50)", "type": "none" }
+  },
+
+  "finance": {
+    "convention":     { "value": "中国市场：涨 = 红，跌 = 绿（与欧美相反）。硬规则", "type": "none" },
+    "colorMapping":   { "value": "--up 红 / --down 绿 / --flat 灰 / --warn 铜棕", "type": "none", "note": "平盘绝不用红绿" },
+    "signRule":       { "value": "正数带 +，负数带 -，零值显示 —（em dash）。强制", "type": "none", "note": "颜色不能是唯一编码（WCAG 1.4.1）" },
+    "arrowRule":      { "value": "▲ / ▼ 方向箭头，与颜色、符号并列为第三重编码", "type": "none" },
+    "alignment":      { "value": "数字单元格与数字列头一律右对齐；文本列头左对齐", "type": "none" },
+    "unitRule":       { "value": "单位进列名，不进单元格（单位重复在每行形成竖向噪音带）", "type": "none" },
+    "decimals":       { "value": "价格按品种固定（黄金2 白银3 铂金/钯金2 铜/原油2 股指2 收益率2）；涨跌幅统一2位；成交量0位用万/亿缩写", "type": "none", "note": "同列小数位不同 = 无法对齐" },
+    "thousandSep":    { "value": ",", "type": "none", "note": "半角逗号，国内财经惯例" },
+    "leadValue":      { "value": "--up-strong / --down-strong（≥20px）；常规 --up / --down；行底 --up-soft / --down-soft", "type": "none" },
+    "tableRules":     { "value": "无竖线 / 无斑马纹 / 1px 横线 / sticky 表头 top:var(--bar-h) / hover 只改背景色不改边框 / 首列同时 sticky left:0", "type": "none" },
+    "screenLimit":    { "value": "同屏红绿单元格总数 ≤40；每屏 --accent 可见处 ≤2", "type": "none" },
+    "goldDiscipline": { "value": "金色只出现在 (a) 图表黄金曲线 (b) 贵金属分类标签 1px 规则线。永不作为按钮底色/链接色/卡片边框/页面背景", "type": "none", "note": "金色低对比（#FFD700 on 白 ≈1.4:1）且与「黄金」这个数据对象语义冲突" }
+  },
+
+  "component": {
+    "QuoteBar":     { "value": "首页置顶。无框通栏 flex gap:0，overflow-x:auto，background:var(--surface)，border-block:1px solid var(--line)，0 圆角 0 阴影。格间 1px 竖线 border-right:var(--line-soft)", "type": "none", "note": "0 圆角是硬要求：圆角会让相邻格出现圆角对不齐的破口。V1 固定 5 格（黄金/白银/铂金/钯金/铜）" },
+    "QuoteTile":    { "value": "宽 116px（手机 104px），高 92px，padding 12px，flex:0 0 auto。四行：品种码13px mono tabular .08em --ink-3 / 价格 17px --font-num tabular --num 右对齐 / 涨跌幅 13px tabular --up|--down|--flat 显式+号 / 单位 11px --ink-4", "type": "none", "note": "V1 无 sparkline（每日 1 点无趋势可表达）。价格 17px 是主体，比涨跌幅大 4px。单位行必需：铜是美元/磅而金银是美元/盎司" },
+    "QuoteTable":   { "value": "多周期涨跌表（Kitco 参照）。行高 32px，无圆角无阴影，列头右对齐，品种列+表头同时 sticky", "type": "none" },
+    "DataTable":    { "value": "通用数据表。border-collapse:separate，无竖线无斑马纹，th.num{text-align:right}，tabular-nums", "type": "none" },
+    "QuotePanel":   { "value": "有框面板，每屏 ≤1。1px 边框 + 12px 圆角 + 静态无阴影。事件页左栏置顶", "type": "none", "note": "全站唯一允许 --accent 出现在非交互元素的位置（标题左侧 2px 规则线）" },
+    "ReferenceTable": { "value": "事件页/条目页左栏的降级形态。无边框无圆角无阴影，仅 divide-y divide-line-soft。行高 44px（--row-h-list，触摸目标下限）。行结构：品种码 mono 13px tabular .08em --ink-3 定宽 52px / 中文名 13.5px --ink-2 truncate / 事件数 tabular 12px --ink-4 shrink-0。底部必须有 12px --ink-4 说明「近 24 小时无该品种的价格快照。」", "type": "none", "note": "品种码列必须定宽 52px，否则中文名长度不同会让码列参差，破坏 tabular-nums 纵向对齐。底部说明不可省：缺了价格列的品种表看起来像 bug，这句话把「没有价格」从故障变成事实。关联品种为 0 时整块不渲染（return null），空壳比没有更糟" },
+    "referenceTableNeverOnHome": { "value": "首页行情带永不降级成 ReferenceTable。行情带是固定的 5 个品种（数据源驱动），ReferenceTable 是从单个事件推导的品种集（内容驱动），两者语义不同源", "type": "none", "note": "首页把行情带换成它，等于让该模块承诺一件它不再是的东西——读者昨天看到 5 个品种价格，今天看到 3 个事件关联品种，会以为品种变了。宁可整带显示 Error 并隐藏" },
+    "eventCountHonesty": { "value": "{n} 条相关事件 的 n 必须是该品种在站内的真实关联事件数，不是「本文提到几次」。若后端只能给出后者，宁可不渲染这一列", "type": "none", "note": "与 unit 必须进 raw 同原则：宁可缺字段，不可错字段。当前 ReferenceTable.tsx:43 的 eventCount 恒为 0，待后端接口就位后填上" },
+    "panelSwitch": { "value": "有价时事件页显示 QuotePanel（1px 边框 + 12px 圆角，每屏 ≤1），无价时显示 ReferenceTable（无框），两者互斥不同时出现。切换不加动画", "type": "none", "note": "数据状态变化不是用户操作，不需要过渡" },
+    "DataStat":     { "value": "无框统计块。多块并列用 divide-x，禁止卡片网格", "type": "none" },
+    "badge":        { "value": "双字（突发/首报/发酵中），11px + radius-mark 5px，禁止单字+tooltip", "type": "none", "note": "语义必须写在可见文字里，title 仅作补充" },
+    "button":       { "value": "small 28px / medium 36px / large 40px；移动端触摸目标 ≥44×44px", "type": "none" }
+  },
+
+  "snapshot": {
+    "note": "每日价格快照的视觉规范。快照是数据不是新闻，participation_mode=isolated，对全部公开出口零暴露",
+    "visibility":   { "value": "isolated → publish.ts:277 强制 visibility='withdrawn' → 不进时间线/RSS/API/热点榜，且 hasItemPage 要求 sourceMode='editorial' 故连详情页都没有", "type": "none", "note": "双保险，框架保证，不依赖前端自觉" },
+    "instrumentOrder": { "value": ["XAU", "XAG", "XPT", "XPD", "HG"], "type": "none", "note": "黄金→白银→铂金→钯金→铜。硬编码，绝不依赖 API 返回顺序。同类连续 > 单项最优：前 4 格是贵金属，第 5 格是大宗商品，顺序本身即分类信息。铜垫底而非按流动性插中间，否则贵金属被劈成两半" },
+    "decimals":     { "value": { "XAU": 2, "XAG": 3, "XPT": 2, "XPD": 2, "HG": 2 }, "type": "none", "note": "按品种固定，这是小数点垂直对齐的前提" },
+    "unit":         { "value": { "XAU": "美元/盎司", "XAG": "美元/盎司", "XPT": "美元/盎司", "XPD": "美元/盎司", "HG": "美元/磅" }, "type": "none", "note": "实测gold-api：贵金属是 troy ounce/美元，工业金属是磅/美元。单位必须显示，否则读者会拿 4 美元的铜和 4100 美元的金比量级" },
+    "changeBasis":  { "value": "自算：articles 表 WHERE raw->>'symbol' = 'XAU' ORDER BY discovered_at DESC LIMIT 2，取 raw->>'price' 两行相减。零新增信源、零新表", "type": "none", "note": "实测 api.gold-api.com 只返回 price 与 updatedAt，无 previousClose/changePct/open/high/low。articles 表无 symbol 列，symbol 在 raw JSONB 里；raw 无索引但快照约 4 条/天×365 ≈ 1460 行，全表扫可接受，不需要 GIN" },
+    "rawShape":     { "value": "{ symbol, name, price, unit, updatedAt, source: 'gold-api' }", "type": "none", "note": "unit 必须存进 raw 而非只在前端渲染。下游（摘要/日报/modules/quotes/RSS）若拿不到 unit 会系统性误读。这与 SPEC §9.18 rules-anti-hallucination.md 的「数字三件套：数值+单位+基准」同规则。QuoteTile 的单位行只是 raw.unit 的渲染结果" },
+    "changeLabel":  { "value": { "yesterday": "较昨日", "lastSnapshot": "较上次", "noBaseline": "—" }, "type": "none", "note": "三态不可省。「较昨日」基准是昨天；「较上次」是上一条（漏跑时自动降级，不假装是昨日）；「—」是无基准。绝不用 0.00% 冒充无数据" },
+    "changeEdge":   { "value": "无基准 → '—' + --flat 灰无箭头 | 涨跌幅为 0 → '0.00%' + --flat 灰无箭头（±0.00% 是噪音）| 断档 >3 天 → 加 14px --warn TriangleAlert + 标签用「较上次」+ tooltip 写真实基准日期", "type": "none", "note": "断档那条最容易漏：5天前的基准会让涨跌幅被误读成日涨跌，在金融站是硬伤" },
+    "freshness":    { "value": "行情带下沿右端固定一行 11px --ink-4「数据截至 HH:mm」。超 6 小时或脚本失败 → --warn 色 + 14px TriangleAlert + 文案改「行情数据可能已过期」", "type": "none", "note": "不能省。行情数据过期而不说，读者会拿旧价格做判断，这是信任问题不是设计问题" },
+    "sparkline":    { "value": "V1 不放。升级路径：articles 积累 ≥14 天后，在事件页 QuotePanel 加 7 日 sparkline；首页行情带保持无 sparkline", "type": "none", "note": "每日 1 条单点没有趋势可表达，60px 宽 1-2 个点的折线是视觉噪音的替身。5 条并排趋势线在 116px 格里看不清" },
+    "title":        { "value": "[XAU] 黄金价格快照 · 2026-10-05", "type": "none", "note": "价格绝不能进 title！title 参与 content_hash，价格每日变 → reviseMaterial() → 整条管道重跑。价格/涨跌幅/时间戳全部只进 raw JSONB" },
+    "states":       { "value": "Loading=5 格骨架不显示 0.00 | Empty=「行情数据尚未生成」不用 — 填满 5 格当装饰 | Error=整带换 1px --warn 提示条 + 下方事件流照常 | Edge=单格失败只影响该格（--ink-4 的 —），其余 4 格正常", "type": "none", "note": "整带因 1 格失败而不可用是最差实现" }
+  },
+
+  "fontDelivery": {
+    "hosting":      { "value": "self-hosted，public/fonts/，从 C:/Users/23165/.workbuddy/fonts/ 复制", "type": "none", "note": "本机可能无外网，CDN 不可靠" },
+    "fontDisplay":  { "value": "block", "type": "none", "note": "反直觉但正确。swap 会先按系统比例数字渲染再跳成等宽数字，行情表列宽重排一次。block 期间用户看到空白而非错位数字。本地 30-40KB 毫秒级，3s 超时不会触发。实现时不要「顺手改成 swap」" },
+    "preload":      { "value": ["/fonts/Roboto-400.woff2"], "type": "none", "note": "只 preload 这一个，它服务正文与所有数字。Condensed 与 Mono 不 preload" },
+    "files":        { "value": ["Roboto-400.woff2", "RobotoCondensed-600.woff2", "RobotoMono-400.woff2"], "type": "none", "note": "只托管 3 个。不托管 500/700——中文只用 400/700，标题用 Condensed 600 分层" },
+    "cjk":          { "value": "不打包 webfont。PingFang SC (macOS) → Microsoft YaHei (Windows) → Noto Sans SC (兜底)", "type": "none" },
+    "weightIsolation": { "value": "中文禁止 510/590 字重。雅黑只有 400/700，中间字重会被合成（伪粗发虚、边缘毛糙）。中文正文 400、标题 700；510/590 只对 .num / .mono / code 等拉丁与数字容器生效", "type": "none", "note": "需在 CSS 上显式隔离，不靠运气" },
+    "mixedScript":  { "value": "雅黑拉丁部分字面偏小、行高偏大，与 Roboto 混排会显得中文比数字大一号。这是中英混排固有现象不是 bug。缓解：含数字的行不单独放大字号（价格 17px、单位行 11px，靠位置区分大小）", "type": "none" },
+    "monoScale":    { "value": "0.92em", "type": "none", "note": "Roboto Mono 字面偏大偏宽，此缩放仍必要。换字体后必须在 Windows 上重新目测" }
+  },
+
+  "snapshotIssue": {
+    "note": "recordSignal 写侧污染 stories.latest_at。四轮核实后的最终结论（2026-10-05，见 03-design.md 附录 B/C/D）。本项是P2，MVP 不做",
+    "mechanism":  { "value": "events/group.ts:298 让非 editorial（含 isolated）的条目走 groupSignal，group.ts:563 调 recordSignal，其中 :122-127 的 UPDATE stories SET latest_at = GREATEST(...), first_report_at = LEAST(...) 无 participation_mode 条件。每日快照经 embedding 召回命中后给「黄金相关事件」按日续命", "type": "none" },
+    "howItAttaches": { "value": "groupSignal 只在 embedding 召回命中时写 story_signals，而 recallPool()（recall.ts:46-56）是 JOIN articles a ON a.id = fa.article_id + WHERE fa.role IN ('primary','report') —— 召回池只收已挂进 fact_articles 的真实报道。所以不存在「只有 isolated 证据」的 story；真实场景是快照挂到已有真实报道的 story 上", "type": "none", "note": "这条是第四轮的关键修正。前三轮我都在错误前提上推演" },
+    "holds":      { "value": "两处：① sitemap lastmod 失真（sitemap.ts:55-61，story 有真实报道故通过 WHERE 过滤被选中，但 lastmod 取被改写的 s.latest_at）；② relatedStories 次级排序（stories.ts:130-136，唯一直读列值 ORDER BY st.latest_at DESC）", "type": "none" },
+    "doesNotHold":{ "value": "① 公开时间线 —— 锚点是 timeline.ts:62-63 的 min(sort_at)，来自 publications 表的 timeline_at，与 stories.latest_at 无关；② 热点榜主序 —— hot.ts:185-186 rows.sort 是 Number(b.heat)-Number(a.heat) || latest_at差，heat 是主键，且 MIN_PARTICIPANTS>=2 与 editorial_participants>=1 双门槛；③ 事件状态徽章 —— storyStatusFor 入参虽然叫 latestAt，但 stories.ts:161 是 const latest = text.latest ?? latestReport，从可见证据重算，不读 s.latest_at 列", "type": "none" },
+    "filterPaths":{ "value": "两条独立路径，不是「三道门」：① storyReportCondition（scope.ts:22-24）= visibility='public' + participation_mode='editorial' + releasedCondition，用于事件页报告与徽章入参；② evidenceCondition（scope.ts:55-58）= fa.role<>'mention' AND NOT compositeCondition，配合 listedCondition（scope.ts:17-19，visibility + p.eligible），用于 sitemap 与 relatedStories", "type": "none", "note": "注意：evidenceCondition 不含任何 participation_mode 条件（曾误标）。sitemap 靠的是 listedCondition 的 p.eligible，而 isPoolEligible（rules.ts:25）要求 participationMode==='editorial'。但 p.eligible 只保证 story 有真实报道，保证不了 latest_at 未被改写" },
+    "fix":        { "value": "唯一方案：只改 sitemap.ts 一处（纯读侧）。把 lastmod: s.latest_at 换成 LEFT JOIN LATERAL 取可见证据最大时间 max(coalesce(p.published_at, p.discovered_at))，条件复用 evidenceCondition() + listedCondition(now)；必须 coalesce(vis.latest_at, st.latest_at) 兜底；ORDER BY 建议用列别名而非位置序号（位置会随 select 列表变更静默错位）", "type": "none", "note": "group.ts / recordSignal 一行都不用动，并发锁风险完全规避。0.1 人日。依据：publication/hot.ts:36 已在做同样件事（JOIN LATERAL 取 max 时间），publication/hot.ts:49 的 latestAt 用的就是它；story-text.ts:33 是 LEFT JOIN LATERAL + 后续 ?? latestReport 兜底，两者都是现成范式" },
+    "regressionRisk": { "value": "裸写 vis.latest_at 会让「有 editorial 事实但无 listed evidence」的历史 story 从 sitemap 消失——这比 lastmod 失真严重得多（失真只是数据不准，消失是页面进不了搜索引擎）。框架自己承认该场景存在：stories.ts:157 注释「Historical stories without listed evidence retain their latest readable report」并用 ?? latestReport 兜底", "type": "none", "note": "coalesce 兜底的失败模式是「退回当前行为」而非「引入新问题」，这是它可以安全上线的关键性质" },
+    "abandoned":  { "value": "CASE WHEN 方案（改 recordSignal 三列）与 touchStory 方案（跳过整个 UPDATE）均作废，保留为反面参考。两者都会动 recordSignal 这个所有信号共用的核心函数与并发合并保护路径，而读侧方案能达到相同效果且零风险", "type": "none", "note": "若将来有人再提出改 recordSignal：CASE WHEN 控制三列、UPDATE 与 throw 一行不动是唯一正确写法；绝对不能为 isolated 跳过整个 UPDATE（0002_events_reports.sql:82-90 story_signals 只有 FK + ON DELETE CASCADE，无「未合并」约束，跳过锁后 INSERT 静默成功且会被 currentSignals() 算进热度）" },
+    "notToChange": { "value": "relatedStories（stories.ts:133 次级排序）不改——要动 story_links 查询不划算，且影响仅是「相关推荐里某条的位置」。热点榜 hot.ts:186 不受影响（heat 为主键键，latest_at 仅在完全相等时作第二键，且 MIN_PARTICIPANTS>=2 与 editorial_participants>=1 双门槛）", "type": "none" },
+    "cost":       { "value": "0.1 人日（只改 sitemap.ts）", "type": "none", "note": "曾报 0.3（recordSignal CASE WHEN 版）→ 0.2（touchStory 版，有并发锁 bug）→ 0.1（最终读侧版）" },
+    "decision":   { "value": "P2，MVP 不做。但成本降到 0.1 人日后性价比明显改善，建议归入「有余力就做」而非「要权衡很久」", "type": "none", "note": "理由不依赖假设性未来需求：① lastmod 只影响抓取优先级不是排名因素（排名取决于内容质量与外链），失真后果是「本该少抓的页面被多抓」不是「被判为高质量」；② 读侧改动零并发风险" },
+    "lesson":     { "value": "读代码不能只看函数名与参数名，要追到数据的实际来源；读 SQL 不能只看 ORDER BY 或 WHERE 其中一句，要看清这个查询实际会返回哪些行。验证「某条件能否挡住 X」时，必须先确认「存在满足全部其他条件的样本」——如果没有那个不存在的样本，推理链看起来是自洽的。提方案时给可验证依据（框架里已经这么做），而不是主观判断（我觉得更安全）", "type": "none", "note": "本项 designer 犯过四次同型误报（B.1 时间线 / B.3 sitemap成立 / C.1 sitemap不成立 / C.3 背书touchStory），architect 犯过一次（把入参 latestAt 当表列）。已在 02-architect.md §16/§17/§18 与 03-design.md 附录 B/C/D/E 保留为反面参考，不静默删除" }
+  },
+
+  "navigation": {
+    "desktopSections": { "value": "行情（行情带/品种）→ 内容（今日/热点榜/日报/动态/主题）→ 更多（收藏/数据源状态/Agent 接入/反馈/更新日志/关于）", "type": "none", "note": "行情提到与内容同级，不塞进内容组" },
+    "mobileTabs":      { "value": "今日 / 行情 / 热点 / 我的（4 项）", "type": "none", "note": "日报移入「我的」与侧栏：日报是结算物，热点是过程" },
+    "search":          { "value": "提到顶栏，图标 Search 16px + 占位「搜品种 / 事件 / 报告」，/ 聚焦，Esc 清空", "type": "none" },
+    "removed":         { "value": "Faces（参与者头像，无社区语义）/ IconSparkles（AI 味，无生成式功能）", "type": "none" }
+  },
+
+  "collab": {
+    "note": "设计侧与前端的分工边界（team-lead 2026-10-05 裁定）",
+    "designerWrites": ["03-design.md", "design-system/MASTER.md", "design-system/design-tokens.json"],
+    "frontendWrites": ["apps/web/**（全部）"],
+    "rule": "设计师给 CSS 片段、布局图、Token 值、设计决策并回答设计疑问；前端自己粘贴进代码。设计师不碰 apps/web/ 下任何文件，前端不碰设计三件套。并行改同一文件要到合并时才暴露，返工成本高",
+    "hardcodedColorInSnippets": "我给出的可粘贴 CSS 片段必须全部用 var(--*) 引用，禁止字面色值（唯一例外 #fff/#000）。色值的定义在 app.css 的 token 层，那是定义不是硬编码。已用脚本自检：附录 F 的 1 个 CSS 块字面色值 0 个"
+  },
+
+  "constraint": {
+    "p0": [
+      "禁止 emoji 作为功能图标。正则零命中 [\\x{1F300}-\\x{1F9FF}\\x{2600}-\\x{26FF}\\x{2700}-\\x{27BF}]",
+      "禁止紫色→粉色渐变主视觉。#7C3AED #A855F7 #9333EA #EC4899 之间任意渐变组合零出现；linear-gradient 仅允许同色系深浅",
+      "禁止 AI 模板味：Lorem ipsum / Welcome to / Sign up today / Get started / Elevate / Seamless / Unleash / Next-Gen",
+      "禁止弹跳缓动 cubic-bezier(0.68,-0.55,0.265,1.55)",
+      "禁止千篇一律 Hero（大图居中 + 渐变标题 + 立即开始）"
+    ],
+    "hardcodedColor": "组件代码内禁止裸 hex，唯一例外 #fff / #000。全部走 var(--*) 或 Tailwind text-*",
+    "forbiddenPatterns": [
+      "24px font-black + 负字距的大号超粗数字（AI 模板特征）",
+      "卡片网格（全同尺寸 + 图标 + 标题 + 文字）",
+      "圆角 ≥24px",
+      "纯图标按钮只靠 title 传达功能",
+      "斑马纹表格（有彩色数字时产生摩尔纹）",
+      "竖线分隔的数字表（栅栏切碎数字）",
+      "涨跌幅只用颜色编码",
+      "首页多横条模块堆叠",
+      "每屏 accent 可见处 >2"
+    ]
+  }
+}

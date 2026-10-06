@@ -44,7 +44,7 @@ function Figure({ n, unit }: { n: number; unit: string }) {
   const f = figure(n);
   return (
     <div className="flex items-baseline gap-1.5">
-      <span className="num text-[30px] font-black leading-none tracking-[-0.03em] text-ink xl:text-[36px]">{f.value}</span>
+      <span className="num text-[28px] font-bold leading-none text-ink xl:text-[34px]">{f.value}</span>
       <span className="text-[13px] text-ink-3">
         {f.unit}
         {unit}
@@ -147,7 +147,7 @@ function Maker({ maker, contact }: { maker: NonNullable<typeof ABOUT.maker>; con
     <section aria-labelledby="maker" className="mt-20 grid gap-10 xl:mt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
       <div>
         <Kicker>做这个站的人</Kicker>
-        <h2 id="maker" className="mt-4 flex items-center gap-3.5 text-[26px] font-black leading-[1.3] tracking-[-0.02em] text-ink xl:gap-4 xl:text-[34px]">
+        <h2 id="maker" className="mt-4 flex items-center gap-3.5 text-[24px] font-bold leading-[1.35] tracking-[-0.01em] text-ink xl:gap-4 xl:text-[30px]">
           {contact?.makerAvatar && <MakerFace src={contact.makerAvatar} />}
           <span>
             嗨，我是 <span className="whitespace-nowrap text-accent">{maker.name}</span>
@@ -216,7 +216,7 @@ export default function AboutPage() {
       <header className="grid items-end gap-8 pt-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:pt-0">
         <div>
           <Kicker>{ABOUT.kicker}</Kicker>
-          <h1 data-page-title="" className="mt-5 text-[34px] font-black leading-[1.18] tracking-[-0.03em] text-ink [text-wrap:balance] sm:text-[46px] xl:text-[56px] 2xl:text-[64px]">
+          <h1 data-page-title="" className="mt-5 text-[32px] font-bold leading-[1.28] tracking-[-0.01em] text-ink [text-wrap:balance] sm:text-[42px] xl:text-[50px] 2xl:text-[56px]">
             {ABOUT.headline[0]}
             <br />
             <span className="text-accent">{ABOUT.headline[1]}</span>
