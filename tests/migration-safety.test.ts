@@ -60,6 +60,25 @@ test("a table nothing uses can be dropped alone, never with its dependents", () 
   ]) assert.throws(() => migrationPlan(statement), statement);
 });
 
+// Dropping a constraint a validated replacement already covers: catalog only, no re-check of existing
+// rows. One constraint and no CASCADE, so a dependent object must stop it, and one statement may not
+// drop several constraints at once.
+test("a constraint a validated replacement covers can be dropped alone, never with its dependents", () => {
+  assert.equal(migrationPlan("ALTER TABLE sources DROP CONSTRAINT sources_tier_check;").kind, "transaction");
+  assert.equal(migrationPlan("ALTER TABLE sources DROP CONSTRAINT IF EXISTS sources_tier_check;").kind, "transaction");
+  assert.equal(migrationPlan("-- superseded\nALTER TABLE public.sources DROP CONSTRAINT IF EXISTS sources_tier_check;").kind, "transaction");
+  for (const statement of [
+    "ALTER TABLE sources DROP CONSTRAINT sources_tier_check CASCADE;",
+    "ALTER TABLE sources DROP CONSTRAINT IF EXISTS sources_tier_check CASCADE;",
+    "ALTER TABLE sources DROP CONSTRAINT a, b;",
+    "ALTER TABLE sources DROP CONSTRAINT IF EXISTS a, b;",
+    "ALTER TABLE sources DROP CONSTRAINT IF EXISTS sources_tier_check; DROP TABLE IF EXISTS articles;",
+    "ALTER TABLE sources DROP CONSTRAINT 42;",
+    "DROP CONSTRAINT sources_tier_check;",
+    "ALTER TABLE sources RENAME CONSTRAINT sources_tier_check TO sources_tier_check_v2;",
+  ]) assert.throws(() => migrationPlan(statement), statement);
+});
+
 test("concurrent indexes have one retriable statement per file, outside a transaction", () => {
   const plan = migrationPlan("CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS article_idx ON public.articles (id) WHERE id IS NOT NULL;");
   assert.deepEqual(plan, { kind: "index", index: "article_idx", table: "public.articles" });
