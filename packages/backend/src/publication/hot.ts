@@ -122,6 +122,5 @@ export async function loadHotStrip(): Promise<HotStripEntry[] | null> {
     storyPublicId: e.storyPublicId,
     itemId: e.representativeItemId,
     participants: extras.participants(e),
-    participantCount: e.participantCount,
   }));
 }

@@ -271,7 +271,6 @@ export async function loadHot(): Promise<HotResponse> {
         trend: e.trend,
         trendPct: e.trendPct,
         badges: e.badges,
-        participantCount: e.participantCount,
         sourceCount: e.sourceCount,
         sourceNames: [...new Set(e.sourceNames.map(publicSourceName))],
         participants: extras.participants(e),

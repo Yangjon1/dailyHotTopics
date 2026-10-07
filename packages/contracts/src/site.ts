@@ -91,7 +91,6 @@ export interface HotStripEntry {
   storyPublicId: string | null;
   itemId: string | null;
   participants: HotParticipant[];
-  participantCount: number;
 }
 
 export interface TimelineFilters {
@@ -183,7 +182,6 @@ export interface HotEntryView {
   trend: "up" | "down" | "flat" | "new" | "unknown";
   trendPct: number | null;
   badges: Array<"surge" | "new" | "rising">;
-  participantCount: number;
   sourceCount: number;
   sourceNames: string[];
   participants: HotParticipant[];

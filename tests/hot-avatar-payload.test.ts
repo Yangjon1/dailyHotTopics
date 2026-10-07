@@ -70,8 +70,6 @@ test('faces are 精选组 sources by tier (T1, T1.5, T2), at most 6; 氛围组 o
   for (const extras of concurrent) assert.deepEqual(extras.participants(entries[0]!).map(p=>p.name),order.map(name));
   assert.deepEqual(home.participants,full,'home shows the same faces');
   assert.deepEqual(hot.participants,full,'/hot shows the same faces');
-  assert.equal(home.participantCount,12,'the +N count still includes everyone');
-  assert.equal(hot.participantCount,12);
   assert.deepEqual(full.slice(0,6).map(p=>p.iconUrl ? new URL(p.iconUrl, 'http://localhost').searchParams.get('u') : null),order.slice(0,6).map(imageUrl),'visible faces keep their image or initial');
   assert.equal(full[1]!.iconUrl,null,'a visible initial still takes one of the six slots');
   for (const person of full.slice(6)) {
