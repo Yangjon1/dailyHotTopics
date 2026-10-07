@@ -11,12 +11,12 @@
 //
 // changePct is NOT a financial daily change: that is measured against the previous close, which this
 // feed does not carry. It is "today's snapshot against the baseline snapshot", so `basis`, `basisAt`
-// and `baselineAgeDays` travel with the number and the page can say how old the comparison is. A gap
+// and `basisAt` travel with the number and the page can say how old the comparison is. A gap
 // of more than a few days is marked rather than shown as if it were today's move.
 //
 // The rows are few (5 varieties a day) and `raw` carries no index, so a scan is the honest cost here;
 // adding a GIN index for it would be paying to maintain something this query does not need.
-import type { Quote, QuoteBasis, QuoteSymbol, QuotesResponse } from "@aihot/contracts/site";
+import { QUOTE_SYMBOLS, type Quote, type QuoteBasis, type QuoteSymbol, type QuotesResponse } from "@aihot/contracts/site";
 import { beijingDate } from "@aihot/contracts/time";
 import { sql } from "../db.ts";
 
@@ -25,26 +25,33 @@ import { sql } from "../db.ts";
  * runs together on purpose — the order itself is classification, and a reader learns it in a week.
  * Never order by `updatedAt`: a missing or stale quote must still appear, in its own place.
  */
-const SYMBOLS: readonly QuoteSymbol[] = ["XAU", "XAG", "XPT", "XPD", "HG"];
+const SYMBOLS: readonly QuoteSymbol[] = QUOTE_SYMBOLS;
 
 /** Only these sources' snapshots are prices; anything else with a `raw.symbol` is not a quote. */
-const SNAPSHOT_SOURCES = ["ext-price-snapshot"];
+// ext-price-snapshot（gold-api 伦敦现货）已停用：它的品种被 ext-futures-macro（Yahoo 国际期货）
+// 与 ext-sge（上金所国内）取代。留着它会让 2016 年以来的现货快照继续被读成行情。
+const SNAPSHOT_SOURCES = ["ext-futures-macro", "ext-sge"];
 
 interface SnapshotRow {
   symbol: string;
   price: number | null;
   unit: string | null;
+  /** From the snapshot's own `raw`; null for rows collected before these fields existed. */
+  exchange: string | null;
+  market: string | null;
   at: Date;
 }
 
 /** The two most recent snapshots of each variety: today's, and the one it is compared against. */
 async function recentSnapshots(): Promise<Map<string, SnapshotRow[]>> {
   // The newest two of each in one pass; the caller pairs them into current and baseline.
-  const rows = await sql<{ symbol: string; price: number | null; unit: string | null; at: Date }[]>`
-    SELECT symbol, price, unit, at FROM (
+  const rows = await sql<{ symbol: string; price: number | null; unit: string | null; exchange: string | null; market: string | null; at: Date }[]>`
+    SELECT symbol, price, unit, exchange, market, at FROM (
       SELECT a.raw->>'symbol' AS symbol,
         nullif(a.raw->>'price', '')::float8 AS price,
         a.raw->>'unit' AS unit,
+        a.raw->>'exchange' AS exchange,
+        a.raw->>'market' AS market,
         coalesce(a.published_at, a.discovered_at) AS at,
         row_number() OVER (PARTITION BY a.raw->>'symbol' ORDER BY coalesce(a.published_at, a.discovered_at) DESC) AS rank
       FROM articles a
@@ -55,7 +62,7 @@ async function recentSnapshots(): Promise<Map<string, SnapshotRow[]>> {
   const grouped = new Map<string, SnapshotRow[]>();
   for (const row of rows) {
     const list = grouped.get(row.symbol) ?? [];
-    list.push({ symbol: row.symbol, price: row.price, unit: row.unit, at: row.at });
+    list.push({ symbol: row.symbol, price: row.price, unit: row.unit, exchange: row.exchange, market: row.market, at: row.at });
     grouped.set(row.symbol, list);
   }
   return grouped;
@@ -69,7 +76,7 @@ function ageInDays(from: Date, to: Date): number {
 }
 
 function quote(symbol: QuoteSymbol, snapshots: SnapshotRow[], now: Date): Quote {
-  const empty: Quote = { symbol, price: null, updatedAt: null, changePct: null, basis: "none", basisAt: null, baselineAgeDays: null, unit: null };
+  const empty: Quote = { symbol, price: null, updatedAt: null, changePct: null, basis: "none", basisAt: null, unit: null, exchange: null, market: null };
   const [latest, baseline] = snapshots;
   if (!latest || latest.price === null) return empty;
   const quote: Quote = {
@@ -77,6 +84,8 @@ function quote(symbol: QuoteSymbol, snapshots: SnapshotRow[], now: Date): Quote 
     price: latest.price,
     updatedAt: latest.at.toISOString(),
     unit: latest.unit,
+    exchange: latest.exchange,
+    market: latest.market,
   };
   // No baseline, or a baseline that is not a real number: the page shows a dash. It never shows 0,
   // which would read as "unchanged" rather than "nothing to compare against".
@@ -85,7 +94,7 @@ function quote(symbol: QuoteSymbol, snapshots: SnapshotRow[], now: Date): Quote 
   if (!Number.isFinite(changePct)) return quote;
   const age = ageInDays(baseline.at, now);
   const basis: QuoteBasis = age <= 1 ? "yesterday" : "lastSnapshot";
-  return { ...quote, changePct: Math.round(changePct * 100) / 100, basis, basisAt: baseline.at.toISOString(), baselineAgeDays: age };
+  return { ...quote, changePct: Math.round(changePct * 100) / 100, basis, basisAt: baseline.at.toISOString() };
 }
 
 export async function loadQuotes(now = new Date()): Promise<QuotesResponse> {

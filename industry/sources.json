@@ -450,19 +450,52 @@
     },
     {
       "id": "ext-price-snapshot",
-      "name": "每日价格快照",
+      "name": "伦敦现货价格快照",
       "kind": "external",
       "tier": "T_DATA",
       "owner_entity_id": null,
       "participation_mode": "isolated",
-      "interval_minutes": 1440,
       "tags": [
         "快照",
         "行情"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "notes": "apiBase=https://api.gold-api.com/price",
+      "notes": "**2026-10-06 停用。** gold-api 的 5 个伦敦现货品种（XAU/XAG/XPT/XPD/HG）已被 ext-futures-macro（Yahoo 国际期货）与 ext-sge（上金所国内）取代——行情带改为「国际期货 5 + 国内 4」两行，现货不再单列。原因：gold-api 没有历史数据（趋势图拿不到），而 SGE 自带 2016 年至今 2375 个点。保留 enabled=false 而不是删除，是为了让已有快照的来源仍然可追溯。",
+      "config": {},
+      "enabled": false
+    },
+    {
+      "id": "ext-futures-macro",
+      "name": "COMEX/NYMEX 期货快照",
+      "kind": "external",
+      "tier": "T_DATA",
+      "owner_entity_id": null,
+      "participation_mode": "isolated",
+      "tags": [
+        "快照",
+        "行情"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "notes": "2026-10-06 实测接入。Yahoo Finance 的 chart 端点（query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=5d&interval=1d），免 key，5 个连续合约 GC=F/SI=F/HG=F/PL=F/PA=F。**必须带 user-agent 否则 403；symbol 里的 = 必须 URL 编码**（ingest-push.ts 的 fetchText 已带 UA）。exchange 用接口自报的 fullExchangeName，不写死——写死会在 Yahoo 改代码时悄悄过期。由 scripts/price-snapshot.ts 每分钟推入，同样没有 interval_minutes（external 不会被定时抓取）。Stooq 已实测全 404，不要再试。",
+      "config": {}
+    },
+    {
+      "id": "ext-sge",
+      "name": "上海黄金交易所快照",
+      "kind": "external",
+      "tier": "T1",
+      "owner_entity_id": "sge",
+      "participation_mode": "isolated",
+      "tags": [
+        "官方",
+        "快照",
+        "行情"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "notes": "2026-10-06 实测接入。上金所 Dailyhq 接口（https://www.sge.com.cn/graph/Dailyhq?instid=）的 4 个品种：Au99.99 / Ag(T+D) / Pt99.95 / mAu(T+D)，免 key，一次给 2016 年至今 2375 个点。**不要用 sjzx/quotation_daily_new**：那是 JS 渲染的页面，HTTP 200 / 73KB 但 HTML 里没有表格。**上金所有 WAF，短时间内连发请求会 403**（实测无间隔连发 4 个品种全部被挡，间隔 3.5 秒则全部 200），所以 scripts/fetch-sge.ts 每个品种之间 sleep。单位是**人民币/克**（CNY/g），与国际美元/盎司不可混。日频数据：接口一次给全部历史，脚本只推最后交易日的收盘，历史由 /api/site/quote-trend 实时拉取、不落库。",
       "config": {}
     }
   ]

@@ -23,6 +23,12 @@ RUN npm run build -w @aihot/web && npm prune --omit=dev --no-audit --no-fund
 
 FROM base
 ENV NODE_ENV=production
+# tests/migration-check.test.ts shells out to git, and without it the whole file dies at load with
+# `spawnSync git ENOENT` — a file-level crash, so its assertions never run and never report. The base
+# image is Debian trixie-slim, not Alpine, so this is apt-get rather than apk.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=build --chown=node:node /app /app
 RUN mkdir -p /data && chown node:node /data
 USER node

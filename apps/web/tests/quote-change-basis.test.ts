@@ -18,7 +18,8 @@ import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import type { Quote, QuoteBasis, QuoteSymbol, QuotesResponse, TimelineResponse } from "@aihot/contracts/site";
 import { beijingDate } from "@aihot/contracts/time";
-import { QUOTE_UNIT, baselineIsStale, formatChange, moveOf, newestSnapshotAt } from "../app/features/quotes/model.ts";
+import { baselineIsStale, formatChange, moveOf, newestSnapshotAt } from "../app/features/quotes/model.ts";
+import { unitOf } from "../app/features/quotes/instruments.ts";
 
 /**
  * The clock these cases are built around.
@@ -65,7 +66,7 @@ function noBasis(symbol: QuoteSymbol, price: number, daysOld: number): Quote {
 
 /** The five varieties, in one of three shapes, with XAU carrying the case under test. */
 function response(xau: Quote): QuotesResponse {
-  const rest: Array<[QuoteSymbol, number]> = [["XAG", 36.42], ["XPT", 1043.8], ["XPD", 944.25], ["HG", 4.512]];
+  const rest: Array<[QuoteSymbol, number]> = [["SI=F", 36.42], ["PL=F", 1043.8], ["PA=F", 944.25], ["HG=F", 4.512]];
   return {
     quotes: [
       xau,
@@ -77,13 +78,13 @@ function response(xau: Quote): QuotesResponse {
 }
 
 /** yesterday: the baseline is a day back, so the tile may say 较昨日 and carries no marker. */
-const YESTERDAY = quote("XAU", 0, 1, 4118.4, 4068.1);
+const YESTERDAY = quote("GC=F", 0, 1, 4118.4, 4068.1);
 /** lastSnapshot, fresh: yesterday's run was missed but the baseline is recent. No marker either. */
-const LAST_SNAPSHOT_FRESH = quote("XAU", 0, 2, 4118.4, 4068.1);
+const LAST_SNAPSHOT_FRESH = quote("GC=F", 0, 2, 4118.4, 4068.1);
 /** lastSnapshot, stale: a six-day-old baseline. The percentage stays; the marker must appear. */
-const LAST_SNAPSHOT_STALE = quote("XAU", 0, 6, 4118.4, 4068.1);
+const LAST_SNAPSHOT_STALE = quote("GC=F", 0, 6, 4118.4, 4068.1);
 /** none: no baseline at all. A dash, and no arrow. */
-const NO_BASIS = quote("XAU", 0, null, 4118.4, null);
+const NO_BASIS = quote("GC=F", 0, null, 4118.4, null);
 
 let web: ChildProcess;
 let origin: string;
@@ -156,7 +157,7 @@ test("the gap is measured against now, not against the quote's own timestamp", (
   // snapshot and its baseline are one day apart while both are ancient. Measuring quote-to-baseline
   // calls that fresh; measuring to now correctly marks it. A reader looking at this number is
   // reasoning about today, so "how old is the baseline" has to mean how old it is now.
-  const stopped = quote("XAU", 5, 6, 4118.4, 4068.1);
+  const stopped = quote("GC=F", 5, 6, 4118.4, 4068.1);
   assert.equal(stopped.basis, "lastSnapshot", "a six-day-old baseline is not yesterday's");
   const quoteToBaseline = Math.abs(Date.parse(stopped.basisAt!) - Date.parse(stopped.updatedAt!)) / 86_400_000;
   assert.equal(quoteToBaseline, 1, "fixture is wrong: the two snapshots are meant to be a day apart");
@@ -168,8 +169,8 @@ test("a recent baseline is not marked, and yesterday's never is", () => {
   assert.equal(baselineIsStale(LAST_SNAPSHOT_FRESH, NOW.getTime()), false);
   assert.equal(baselineIsStale(NO_BASIS, NOW.getTime()), false, "no baseline, nothing to mark");
   // Three days is the boundary and stays unmarked; four is marked.
-  assert.equal(baselineIsStale(quote("XAU", 0, 3, 100, 99), NOW.getTime()), false);
-  assert.equal(baselineIsStale(quote("XAU", 0, 4, 100, 99), NOW.getTime()), true);
+  assert.equal(baselineIsStale(quote("GC=F", 0, 3, 100, 99), NOW.getTime()), false);
+  assert.equal(baselineIsStale(quote("GC=F", 0, 4, 100, 99), NOW.getTime()), true);
 });
 
 test("the change is signed, and a zero change gets no arrow", () => {
@@ -184,7 +185,7 @@ test("the change is signed, and a zero change gets no arrow", () => {
 test("the freshness line dates the newest snapshot, not the response", () => {
   // The api stamps computedAt with the moment it answered, so it is always "now". Dating the
   // freshness line by it would print the current clock beside a week-old price and call it current.
-  const old = { quotes: [quote("XAU", 7, 8, 4118.4, 4068.1)], computedAt: iso(NOW) } as QuotesResponse;
+  const old = { quotes: [quote("GC=F", 7, 8, 4118.4, 4068.1)], computedAt: iso(NOW) } as QuotesResponse;
   assert.equal(newestSnapshotAt(old.quotes), iso(daysAgo(7)));
 });
 
@@ -230,21 +231,23 @@ test("no baseline: a grey dash, and no arrow", async () => {
 test("a stopped pipeline marks both the tile and the freshness line", async () => {
   // The worst case and the one the two bugs met in: every price is a week old while the response
   // claims to be from now. The tile must be marked and the line must say the band may be expired.
-  current = { quotes: [quote("XAU", 7, 8, 4118.4, 4068.1), noBasis("XAG", 36.42, 7)], computedAt: iso(NOW) } as QuotesResponse;
+  current = { quotes: [quote("GC=F", 7, 8, 4118.4, 4068.1), noBasis("SI=F", 36.42, 7)], computedAt: iso(NOW) } as QuotesResponse;
   const b = await band();
   assert.match(b.text, /行情数据可能已过期/, "the freshness line must not present week-old prices as current");
   assert.ok(b.hasGapMarker, "the stale baseline must still be marked on the tile");
 });
 
-test("each variety keeps its own unit, from the api when it has one", async () => {
+test("each variety keeps its own unit, and the two markets are not compared", async () => {
   current = response(YESTERDAY);
   const b = await band();
-  // Copper is dollars per pound; the precious metals are dollars per troy ounce. Without this a
-  // reader compares a 4-dollar number with a 4100-dollar one as the same kind of quantity.
-  assert.equal(QUOTE_UNIT.HG, "美元/磅");
-  assert.equal(QUOTE_UNIT.XAU, "美元/盎司");
-  assert.match(b.text, /美元\/磅/, "copper's unit is missing");
-  const res = await fetch(origin + "/");
-  const html = await res.text();
-  assert.equal((html.match(/美元\/盎司/g) ?? []).length >= 4, true, "the four precious metals share one unit");
+  // Copper is dollars per pound, the other futures are dollars per troy ounce, and the SGE contracts
+  // are yuan per gram. Those are three different quantities: 4196 USD/oz beside 909 CNY/g is about a
+  // hundredfold, and a reader who cannot see the units will read it as a comparison.
+  assert.equal(unitOf({ symbol: "HG=F", price: 6.6, updatedAt: null, changePct: null, basis: "none", basisAt: null, unit: null } as never), "USD/lb");
+  assert.equal(unitOf({ symbol: "GC=F", price: 4196, updatedAt: null, changePct: null, basis: "none", basisAt: null, unit: null } as never), "USD/oz");
+  assert.equal(unitOf({ symbol: "Au99.99", price: 909, updatedAt: null, changePct: null, basis: "none", basisAt: null, unit: null } as never), "CNY/g");
+  // The api's spelling wins over the local table, so a contract whose unit changes upstream does not
+  // quietly keep printing the old one here.
+  assert.equal(unitOf({ symbol: "GC=F", price: 1, updatedAt: null, changePct: null, basis: "none", basisAt: null, unit: "USD/troy_oz" } as never), "USD/troy_oz");
+  assert.match(b.text, /USD\/lb/, "copper's unit is missing from the band");
 });

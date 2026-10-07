@@ -19,48 +19,12 @@
  */
 export type { Quote, QuoteBasis, QuoteSymbol, QuotesResponse } from "@aihot/contracts/site";
 import type { Quote, QuoteBasis, QuoteSymbol, QuotesResponse } from "@aihot/contracts/site";
+import { QUOTE_DECIMALS, QUOTE_ORDER } from "./instruments.ts";
 
-/**
- * Order is fixed here and never taken from the response.
- *
- * The price api has no inherent order, and a UI that renders whatever order the API happened to
- * return would reshuffle itself for no reason. Sorting by liquidity instead would put copper
- * between silver and platinum and split the four precious metals in half. Grouping like with like
- * is worth more than any single-instrument optimum: the first four cells are precious metals and
- * the fifth is an industrial metal, and the order itself carries that.
- */
-export const QUOTE_ORDER: readonly QuoteSymbol[] = ["XAU", "XAG", "XPT", "XPD", "HG"] as const;
-
-/**
- * Decimal places per instrument, fixed.
- *
- * Silver quotes to three decimals because its price is small and moves in small steps; two would
- * round away the move. Everything else quotes to two. A column whose cells disagree on decimals
- * cannot be scanned, so these are per-instrument constants and not a global format.
- */
-export const QUOTE_DECIMALS: Record<QuoteSymbol, number> = { XAU: 2, XAG: 3, XPT: 2, XPD: 2, HG: 2 };
-
-/**
- * The unit each instrument is quoted in. Not decoration: copper is dollars per pound and the
- * precious metals are dollars per troy ounce, so without this a reader compares a 4-dollar number
- * with a 4100-dollar one as if they were the same kind of thing.
- */
-export const QUOTE_UNIT: Record<QuoteSymbol, string> = {
-  XAU: "美元/盎司",
-  XAG: "美元/盎司",
-  XPT: "美元/盎司",
-  XPD: "美元/盎司",
-  HG: "美元/磅",
-};
-
-/** The trading code readers know an instrument by, and its Chinese name. */
-export const QUOTE_LABEL: Record<QuoteSymbol, { code: string; name: string }> = {
-  XAU: { code: "AU9999", name: "黄金" },
-  XAG: { code: "XAG", name: "白银" },
-  XPT: { code: "XPT", name: "铂金" },
-  XPD: { code: "XPD", name: "钯金" },
-  HG: { code: "HG", name: "铜" },
-};
+// The instrument tables live in instruments.ts: the symbol list, the row split, the units, the
+// decimals and the labels are one description of "which instrument is this", and keeping them apart
+// from the formatting rules below meant the two could disagree about what an instrument is.
+export { QUOTE_ORDER, QUOTE_ROWS, QUOTE_DECIMALS, QUOTE_LABEL, unitOf } from "./instruments.ts";
 
 /**
  * What a change is measured against.
@@ -192,9 +156,35 @@ export function orderQuotes(quotes: readonly Quote[]): Quote[] {
   return QUOTE_ORDER.map((s) => bySymbol.get(s)).filter((q): q is Quote => q !== undefined);
 }
 
-/** The symbol behind a trading code, or null when the site does not cover that instrument.
- *  There is deliberately no fallback: an unrecognised code has no honest label, and defaulting to
- *  the first instrument would file someone else's metal under 黄金. */
-export function symbolOfCode(code: string): QuoteSymbol | null {
-  return QUOTE_ORDER.find((s) => QUOTE_LABEL[s].code === code) ?? null;
+/**
+ * An instrument a page is listing.
+ *
+ * Only the symbol, deliberately. This used to carry `eventCount` and the table printed it, which
+ * showed a row of zeros: nothing measures how many events name an instrument — that is the same
+ * missing number the impact chain would have supplied — and a zero is a claim, not a blank. The
+ * field comes back when there is something real to count.
+ */
+export interface InstrumentRef {
+  symbol: QuoteSymbol;
+}
+
+/**
+ * The instruments a price panel should offer, for a page showing prices beside its own content.
+ *
+ * Returns the ones that have a price, in the site's order rather than the response's, so a
+ * reshuffled api cannot reshuffle the page.
+ */
+export function instrumentsOf(quotes: readonly Quote[]): InstrumentRef[] {
+  const priced = new Set(quotes.filter((q) => q.price !== null).map((q) => q.symbol));
+  return QUOTE_ORDER.filter((s) => priced.has(s)).map((symbol) => ({ symbol }));
+}
+
+/**
+ * Every instrument the site covers, for the degraded panel that appears when there is no price to
+ * show. Deliberately not filtered by whether a snapshot exists: that panel exists *because* the
+ * snapshots are missing, so asking whether each one is present would leave it nothing to list — the
+ * same way the panel's original filter left it permanently empty.
+ */
+export function allInstruments(): InstrumentRef[] {
+  return QUOTE_ORDER.map((symbol) => ({ symbol }));
 }

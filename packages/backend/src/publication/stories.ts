@@ -62,6 +62,8 @@ interface ReportRow extends RepresentativeIdentity {
   source_name: string;
   first_party: boolean;
   fact_id: number;
+  /** The report's category, as the public list shows it (publications, not articles). */
+  category: string | null;
 }
 
 /**
@@ -74,7 +76,7 @@ async function storyReports(storyId: number, now: Date): Promise<ReportRow[]> {
   return sql<ReportRow[]>`
     SELECT DISTINCT ON (p.article_id) p.article_id AS id, p.title, p.summary, p.url, p.selected,
       coalesce(p.published_at, p.discovered_at) AS at, s.id AS source_id, s.name AS source_name,
-      (s.tier = 'T1') AS first_party, f.id AS fact_id,
+      (s.tier = 'T1') AS first_party, f.id AS fact_id, p.category,
       CASE WHEN ${compositeCondition()} THEN 'mention' ELSE fa.role END AS role, p.body_mode, p.score, p.timeline_at, ${REPRESENTATIVE_COLUMNS}
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     JOIN sources s ON s.id = p.source_id
@@ -90,6 +92,14 @@ function reportView(r: ReportRow): StoryReportView {
     source: { name: publicSourceName(r.source_name), firstParty: r.first_party },
     publishedAt: r.at.toISOString(),
     selected: r.selected,
+    // The report's own classification, as the public list shows it: publications.category, null
+    // before the report is classified.
+    //
+    // publications.tags is deliberately not carried here. It mixes the category tags, the topic tags
+    // and the `entity:<id>` subject tags in one array, so a consumer wanting the varieties would have
+    // to filter the entity ones out — an easy path to get wrong, and category already carries what
+    // the variety mapping needs.
+    category: r.category,
   };
 }
 

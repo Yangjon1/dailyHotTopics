@@ -1,26 +1,29 @@
 import { IconClock } from "../../components/icons";
-import { basisLabel, baselineIsStale, formatChange, formatPrice, moveOf, QUOTE_LABEL, QUOTE_UNIT, type Quote } from "./model";
+import { basisLabel, baselineIsStale, formatChange, formatPrice, moveOf, type Quote } from "./model";
+import { QUOTE_LABEL, exchangeOf, shortExchange, unitOf } from "./instruments.ts";
 
 /**
- * One instrument in the bar: its code, its latest price, the move, and the unit it is quoted in.
+ * One instrument in the band: its code, its price, the move, the unit, and where it trades.
  *
- * No sparkline. There is one snapshot a day, so a line through one or two points is not a trend,
- * it is a drawing of noise — and five of them side by side in 116px are unreadable anyway. The
- * 32px that would have gone to a sparkline went into the price instead: the price is the point of
- * the tile, and at 17px against the change's 13px it finally reads as the subject of the cell
- * rather than a twin of its own change. Once there are 14 days of history, a 7-day sparkline goes
- * on the event page's panel, where a single instrument has context; the home bar stays without.
+ * No sparkline here, and none later either. The cell is 92px of content already — a line through two
+ * daily points is a drawing of noise, and the trend that is worth drawing lives behind the click,
+ * where one instrument gets the width to be a chart rather than a squiggle.
+ *
+ * The whole cell is a button because the chart is the answer to "how has this moved", and a reader
+ * who has to aim at a small target to ask that will not ask it. 92×92 is far past the 44×44 minimum
+ * in any case.
  */
-export function QuoteTile({ quote, now }: { quote: Quote; now?: number }) {
+export function QuoteTile({ quote, now, onOpen, expanded }: { quote: Quote; now?: number; onOpen?: (symbol: Quote["symbol"]) => void; expanded?: boolean }) {
   const label = QUOTE_LABEL[quote.symbol];
   const move = moveOf(quote.changePct);
   const stale = baselineIsStale(quote, now);
   const dir = move.kind === "none" ? "flat" : move.kind;
-  return (
-    <div
-      className="flex h-[92px] w-[104px] shrink-0 flex-col justify-between px-3 py-2.5 sm:w-[116px]"
-      title={`${label.name}（${label.code}）`}
-    >
+  // The exchange is the api's. It is null for an instrument the collector has not classified, and
+  // the honest thing then is to say so — the alternative, guessing from the symbol, is how this
+  // band would end up filing an SGE contract under COMEX.
+  const exchange = exchangeOf(quote);
+  const body = (
+    <>
       <div className="flex items-baseline gap-1.5">
         {/* The code, not the name: it is the shorter string, it is what a terminal shows, and the
             Chinese name is one hover away for the reader who does not know the code. */}
@@ -68,12 +71,37 @@ export function QuoteTile({ quote, now }: { quote: Quote; now?: number }) {
         )}
       </div>
       {/*
-        The unit line. Without it a reader compares dollars per pound with dollars per ounce, and
-        4 dollars of copper against 4100 of gold looks like a hundredfold gap in the wrong
-        direction. The api's `unit` wins when it has one — it is what the collector recorded, and a
-        local table would quietly disagree with the data the moment the feed changes its units.
+        The unit, then the exchange. Both are on every cell rather than once per row, because the two
+        rows quote in different currencies and different weights per unit: 4196 USD/oz beside 909 CNY/g
+        is about a hundredfold, and a reader who takes the row's meaning from its position will read
+        that as a comparison of the metals rather than of two markets. The api's own strings are used
+        for the unit, so the tile and the trend endpoint can never spell the same unit differently.
+        The exchange is shortened because it does not fit beside a price — see shortExchange.
       */}
-      <div className="text-[11px] leading-none text-ink-4">{quote.unit ?? QUOTE_UNIT[quote.symbol]}</div>
-    </div>
+      <div className="flex flex-nowrap items-baseline justify-between gap-1 whitespace-nowrap text-[11px] leading-none text-ink-4">
+        <span className="truncate">{unitOf(quote)}</span>
+        <span className="shrink-0">{shortExchange(quote)}</span>
+      </div>
+    </>
+  );
+  if (!onOpen) {
+    return (
+      <div className="flex h-[92px] w-[104px] shrink-0 flex-col justify-between px-3 py-2.5 sm:w-[116px]" title={`${label.name}（${label.code}）`}>
+        {body}
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(quote.symbol)}
+      aria-expanded={expanded}
+      title={`${label.name}（${label.code}）· ${exchange}`}
+      className={`flex h-[92px] w-[104px] shrink-0 flex-col justify-between px-3 py-2.5 text-left transition-colors duration-150 ease-standard sm:w-[116px] ${
+        expanded ? "bg-bg-sunk" : "hover:bg-bg-sunk active:bg-bg-muted"
+      }`}
+    >
+      {body}
+    </button>
   );
 }

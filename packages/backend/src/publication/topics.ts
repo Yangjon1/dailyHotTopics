@@ -93,6 +93,11 @@ function topicMatch(tags: ReturnType<typeof sql>, pattern: ReturnType<typeof sql
  * title names it or it is the report's only subject company.
  */
 export function topicMembership(topics: Topic[] = TOPICS) {
+  // No null guard on purpose. The caller (topicsOf) only ever passes slugs that resolve in the
+  // directory, so a null here means the caller broke its own invariant — a pack that names a topic
+  // which is not in its topics.json. Skipping the entry would make that silent: the report would
+  // quietly belong to no topic and the directory would under-report, with nothing failing. A loud
+  // crash at the point of the bad contract is the honest outcome; a defensive filter is not.
   const rows = topics.map((t) => ({ slug: t.slug, tags: t.tags, pattern: t.pattern, position: position(t.slug) }));
   return sql`ARRAY(
     SELECT t.slug FROM jsonb_to_recordset(${sql.json(rows)}::jsonb) AS t(slug text, tags text[], pattern text, position int)

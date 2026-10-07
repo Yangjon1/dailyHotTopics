@@ -17,8 +17,9 @@ import { PillTabs } from "../components/ui/Tabs";
 import { Select } from "../components/ui/Controls";
 import { IconArrowLeft, IconChevronRight, IconClock, IconDoc, IconUsers } from "../components/icons";
 import { ImpactChain, readImpact } from "../features/quotes/ImpactChain";
-import { instrumentsOfCodes, ReferenceTable } from "../features/quotes/ReferenceTable";
-import { QUOTE_LABEL, type QuotesResponse } from "../features/quotes/model";
+import { ReferenceTable } from "../features/quotes/ReferenceTable";
+import { allInstruments, type QuotesResponse } from "../features/quotes/model";
+import { QuoteFreshness } from "../features/quotes/QuoteFreshness";
 import { QuoteTile } from "../features/quotes/QuoteTile";
 import { PhoneBar } from "../components/shell/PhoneBar";
 import type { Screen } from "../components/shell/screens";
@@ -37,7 +38,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   } catch {
     quotes = null;
   }
-  return { story, quotes, expiresAt: pageExpiresAt(300) };
+  // One instant for the whole render, from the loader rather than the clock.
+  //
+  // The price tiles compare the baseline's age against "now" to decide whether to warn, and the
+  // freshness line does the same for the newest snapshot. Both are thresholds, so a value read
+  // during SSR is baked into the HTML and the client keeps it — which is right, and also means the
+  // two must be handed the *same* number, or a tile can warn while the line beside it says the data
+  // is current. Taking it once here and passing it down is what keeps them agreeing.
+  return { story, quotes, now: Date.now(), expiresAt: pageExpiresAt(300) };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -169,7 +177,7 @@ type Order = "desc" | "asc";
 const viewCache = sessionCache<{ savedAt: number; filter: Filter; order: Order }>("aihot:story-view:", 30 * 60 * 1000);
 
 export default function StoryPage() {
-  const { story, quotes } = useLoaderData<typeof loader>();
+  const { story, quotes, now } = useLoaderData<typeof loader>();
   const entry = useLocation().key;
   const [filter, setFilter] = useState<Filter>(() => viewCache.peek(entry)?.filter ?? "all");
   const [order, setOrder] = useState<Order>(() => viewCache.peek(entry)?.order ?? "desc");
@@ -225,12 +233,12 @@ export default function StoryPage() {
   // The impact chain is extracted upstream and may be absent on older events; the panel then does
   // not render at all, rather than showing an empty box.
   const impact = readImpact((story as { impact?: unknown }).impact);
-  // Only the instruments this event's own reports name, so the panel never implies a link the
-  // reporting did not make. A quote with no matching instrument is not shown.
-  const eventCodes = new Set(impact.map((i) => i.code));
-  const panelQuotes = quotes
-    ? { ...quotes, quotes: quotes.quotes.filter((q) => eventCodes.has(QUOTE_LABEL[q.symbol].code)) }
-    : null;
+  // Every instrument the site covers, with whatever the api has for each. It used to be filtered
+  // down to the ones the event's own reports named — which was a good idea, and produced an empty
+  // panel on every event, because those names came from a field the api does not have. Narrowing
+  // this to the event's subject needs a category-to-variety rule that does not exist yet; until one
+  // does, showing the five the site covers is honest and showing none is not.
+  const panelQuotes = quotes;
   const hasPrices = Boolean(panelQuotes && panelQuotes.quotes.some((q) => q.price !== null));
 
   return (
@@ -427,18 +435,30 @@ export default function StoryPage() {
               <div className="scrollbar-none flex overflow-x-auto">
                 {panelQuotes.quotes.map((q, i) => (
                   <div key={q.symbol} className={i === 0 ? "" : "border-l border-line-soft"}>
-                    <QuoteTile quote={q} />
+                    {/* `now` comes from the loader. Without it each tile would read the clock during
+                        SSR and freeze that answer into the HTML, which is how the home page's stale
+                        check went wrong before it was threaded through. */}
+                    <QuoteTile quote={q} now={now} />
                   </div>
                 ))}
               </div>
-              <p className="px-5 pb-4 pt-3 text-[11px] leading-relaxed text-ink-4 lg:px-[22px]">
+              <p className="px-5 pb-3 pt-3 text-[11px] leading-relaxed text-ink-4 lg:px-[22px]">
                 每日快照，非实时报价。涨跌幅为两次快照之间的差值。
               </p>
+              {/*
+                The same freshness line the home bar uses, not a second wording of it: two sentences
+                that drift apart is how one page ends up calling the same price current and the other
+                stale. It goes inside the panel so the reader sees the time next to the numbers it
+                qualifies.
+              */}
+              <div className="px-5 pb-4 lg:px-[22px]">
+                <QuoteFreshness quotes={panelQuotes.quotes} now={now} />
+              </div>
             </section>
           )}
-          {!hasPrices && impact.length > 0 && (
+          {!hasPrices && quotes && (
             <RailCard title="相关品种">
-              <ReferenceTable instruments={instrumentsOfCodes(impact.map((i) => i.code))} />
+              <ReferenceTable instruments={allInstruments()} />
             </RailCard>
           )}
           {observed && (

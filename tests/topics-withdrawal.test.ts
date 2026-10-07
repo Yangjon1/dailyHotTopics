@@ -23,7 +23,7 @@ before(async () => {
   await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, next_fetch_at) VALUES (${SOURCE}, 'Media', 'rss', 'T2', 'editorial', '2100-01-01')`;
   older = await report(1, 3);
   newer = await report(2, 1);
-  corrected = await report(3, 2, "qwen");
+  corrected = await report(3, 2, "pboc");
   // All scenarios share this one cold index, then exercise the cache without waiting a minute.
   await loadTopicPage("wgc", 1);
 });
@@ -58,21 +58,21 @@ test("a withdrawn report leaves the topic page and the index while the topic ind
 });
 
 test("a correction refreshes named content and its topic membership before the index expires", async () => {
-  const title = `Qwen 更正后的模型消息 ${T}`;
+  const title = `中国人民银行更正后的政策报告 ${T}`;
   await overrideFields(corrected, { fields: { title }, version: 0, reason: "更正标题" }, "test-topics");
-  const retitled = await loadTopicPage("qwen", 1);
+  const retitled = await loadTopicPage("pboc", 1);
   assert.equal(retitled?.items[0]?.title, title, "the list");
   assert.equal(retitled?.topic.latest?.title, title, "the page headline");
-  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "qwen")?.latest?.title, title, "the directory headline");
+  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "pboc")?.latest?.title, title, "the directory headline");
 
-  await overrideFields(corrected, { fields: { category: "tip" }, version: 1, reason: "实际是教程" }, "test-topics");
-  const reclassified = await loadTopicPage("qwen", 1);
+  await overrideFields(corrected, { fields: { category: "analysis" }, version: 1, reason: "实际是解读" }, "test-topics");
+  const reclassified = await loadTopicPage("pboc", 1);
   assert.equal(reclassified?.items[0]?.id, corrected, "it remains a selected report");
 
-  await overrideFields(corrected, { fields: { tags: ["教程/实践", "entity:kimi"] }, version: 2, reason: "更正主体公司" }, "test-topics");
-  const moved = await loadTopicPage("qwen", 1);
+  await overrideFields(corrected, { fields: { tags: ["分析/解读", "entity:ecb"] }, version: 2, reason: "更正主体机构" }, "test-topics");
+  const moved = await loadTopicPage("pboc", 1);
   assert.deepEqual(moved?.items, [], "the old topic list drops it");
   assert.equal(moved?.topic.latest, null, "the old topic headline drops it");
-  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "qwen")?.latest, null, "the directory drops the old membership");
-  assert.equal((await loadTopicPage("kimi", 1, new Date()))?.items[0]?.id, corrected, "the corrected membership is retained");
+  assert.equal((await listTopicSummaries()).topics.find((t) => t.slug === "pboc")?.latest, null, "the directory drops the old membership");
+  assert.equal((await loadTopicPage("ecb", 1, new Date()))?.items[0]?.id, corrected, "the corrected membership is retained");
 });

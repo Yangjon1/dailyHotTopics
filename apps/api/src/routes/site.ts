@@ -2,7 +2,7 @@
 // Reads through the same public read layer as v1; no cookies are read or set.
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { isCategoryKey, isChannelKey, type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
-import type { ReportIndexResponse, ReportLatestPage, ReportNavigationResponse, SearchSuggestions, SiteContact } from "@aihot/contracts/site";
+import { isQuoteSymbol, type ReportIndexResponse, type ReportLatestPage, type ReportNavigationResponse, type SearchSuggestions, type SiteContact } from "@aihot/contracts/site";
 import { InvalidCursorError } from "@aihot/backend/lib/cursor";
 import { exportMarkdown, loadItemDetail } from "@aihot/backend/publication/detail";
 import { loadPool, SearchBusyError } from "@aihot/backend/publication/pool";
@@ -18,6 +18,7 @@ import { listTopicSummaries, loadTopicPage, topicBrowseLinks } from "@aihot/back
 import { registerFeedback } from "./feedback.ts";
 import { loadHot, loadStoryDetail, resolveStory } from "@aihot/backend/publication/stories";
 import { loadQuotes } from "@aihot/backend/publication/quotes";
+import { TREND_RANGES, isRange, quoteTrend } from "@aihot/backend/publication/quote-trend";
 import { listReports, loadReport, reportNavigation, loadReportNavigation, loadReportMonth, type ReportKind } from "@aihot/backend/publication/reports";
 import { looseQuery, sendJsonWithEtag, sendProblem } from "../http/respond.ts";
 
@@ -162,6 +163,20 @@ export function registerSite(app: FastifyInstance) {
   app.get("/api/site/quotes", siteHandler(async (req, reply) => {
     const data = await loadQuotes();
     return sendJsonWithEtag(req, reply, data, { etagPrefix: "quotes", cacheControl: "public, max-age=60, s-maxage=60" });
+  }));
+
+  // A variety's own history, pulled live from the upstream: our snapshot store keeps only 24 hours
+  // (see scripts/price-snapshot.ts), so a chart cannot be assembled from it. The range is validated
+  // here against TREND_RANGES so an arbitrary string never reaches the upstream, and the symbol must
+  // be one the price band actually shows.
+  app.get("/api/site/quote-trend", siteHandler(async (req, reply) => {
+    const query = req.query as { symbol?: string; range?: string };
+    const symbol = (query.symbol ?? "").trim();
+    const range = (query.range ?? "1mo").trim();
+    if (!isQuoteSymbol(symbol)) return reply.code(400).send({ code: 40000, message: "unknown quote symbol" });
+    if (!isRange(range)) return reply.code(400).send({ code: 40000, message: "unknown range; expected one of " + TREND_RANGES.join(", ") });
+    const data = await quoteTrend(symbol, range);
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "trend-" + symbol + "-" + range, cacheControl: "public, max-age=60, s-maxage=60" });
   }));
 
   app.get("/api/site/stories/:publicId", siteHandler(async (req, reply) => {

@@ -216,6 +216,16 @@ export interface StoryReportView {
   source: SourceRef & { firstParty: boolean };
   publishedAt: string;
   selected: boolean;
+  /**
+   * The report's own classification, as the public list shows it: `publications.category`, null before
+   * the report is classified.
+   *
+   * `publications.tags` is deliberately not exposed. It carries the category tags, the topic tags and
+   * the `entity:<id>` subject tags in one array, so reading varieties out of it means filtering the
+   * entity ones first; `category` already carries what the variety mapping needs. Add a `tags` field
+   * here when a consumer actually asks for one, rather than shipping the mixed array.
+   */
+  category: string | null;
 }
 
 export interface StoryFactView {
@@ -383,18 +393,71 @@ export interface Quote {
   /** The baseline snapshot's own time, so the reader can see how old the comparison is. */
   basisAt: string | null;
   /**
-   * Whole days between the baseline and today, so a stale baseline cannot be read as a daily change.
-   * A gap over three days is marked by the page; null when there is no baseline.
+   * Where the quote comes from, as the upstream reports it: COMEX / NY Mercantile / 伦敦现货 /
+   * 上海黄金交易所. Null for snapshots collected before this field existed, and null while a variety
+   * has no quote at all. Read this rather than inferring the market from the symbol: `HG=F` and
+   * `Au99.99` are both "copper" and "gold" by name but trade in different markets and units.
    */
-  baselineAgeDays: number | null;
+  exchange: string | null;
+  /** Which half of the price band this belongs to: 国际期货 / 国内现货. Null with `exchange`. */
+  market: string | null;
   /** The unit the price is quoted in: USD/oz for the precious metals, USD/lb for copper. */
   unit: string | null;
 }
 
 export type QuoteBasis = "yesterday" | "lastSnapshot" | "none";
 
-/** The varieties the price band shows, in the order the page lists them. */
-export type QuoteSymbol = "XAU" | "XAG" | "XPT" | "XPD" | "HG";
+/**
+ * The varieties the price band shows, in the order the page lists them: the international futures
+ * first, then the domestic (SGE) ones. The order itself is classification — a reader learns it in a
+ * week, so it must not follow whatever order an upstream API happens to return.
+ *
+ * `HG` and `HG=F` are the same metal in different markets (spot vs COMEX), and `XAU`/`GC=F` likewise.
+ * They are distinct symbols on purpose: a reader comparing them is looking at a basis, not at a
+ * duplicate.
+ */
+export type QuoteSymbol =
+  // 国际期货（Yahoo，美元/盎司 或 美元/磅）
+  | "GC=F" | "SI=F" | "HG=F" | "PL=F" | "PA=F"
+  // 国内（上金所，人民币/克）
+  | "Au99.99" | "Ag(T+D)" | "Pt99.95" | "mAu(T+D)";
+
+/**
+ * Every symbol the price band can show, in display order. Exported so the trend route validates
+ * against exactly the set the band renders — a symbol the band never shows has no chart.
+ */
+export const QUOTE_SYMBOLS: readonly QuoteSymbol[] = [
+  "GC=F", "SI=F", "HG=F", "PL=F", "PA=F",
+  "Au99.99", "Ag(T+D)", "Pt99.95", "mAu(T+D)",
+];
+
+/** The ranges the price band offers for a variety's chart. */
+export const TREND_RANGES = ["1d", "1mo", "3mo", "1y"] as const;
+export type TrendRange = (typeof TREND_RANGES)[number];
+
+export interface TrendPoint {
+  /** ISO date (yyyy-mm-dd) of that session. */
+  date: string;
+  close: number;
+}
+
+export interface TrendSeries {
+  symbol: QuoteSymbol;
+  range: TrendRange;
+  points: TrendPoint[];
+  /** Where the points came from, so the page can label the source. */
+  source: "yahoo-finance" | "sge";
+  exchange: string;
+  /** The quote's own unit, e.g. USD/oz or CNY/g. Never assume it from the symbol. */
+  unit: string | null;
+  /** True when the upstream answered but the series was empty, so the page can say "no data". */
+  empty: boolean;
+}
+
+/** Narrows an untrusted query value to a symbol the band shows, so callers need no cast. */
+export function isQuoteSymbol(value: string): value is QuoteSymbol {
+  return (QUOTE_SYMBOLS as readonly string[]).includes(value);
+}
 
 export interface QuotesResponse {
   quotes: Quote[];

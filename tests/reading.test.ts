@@ -78,10 +78,10 @@ test("a query that names a company also finds the articles about it", async () =
   assert.ok(latest.includes(about), "the CFTC subject without the word");
   assert.ok(latest.includes(mention), "text matches stay");
   assert.ok(!latest.includes(other));
-  const relevance = await search("claude", "&tab=relevance");
+  const relevance = await search("CFTC", "&tab=relevance");
   assert.ok(relevance.indexOf(about) >= 0 && relevance.indexOf(about) < relevance.indexOf(mention), "the subject ranks first");
   // Only the whole query names the company: a narrower search stays a text search.
-  assert.ok(!(await search(`claude ${T}-nothing`)).includes(about));
+  assert.ok(!(await search(`CFTC ${T}-nothing`)).includes(about));
 });
 
 test("bare addresses in post text become safe links", () => {

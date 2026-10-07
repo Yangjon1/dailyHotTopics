@@ -66,6 +66,42 @@ services:
       setup:
         condition: service_completed_successfully
 
+  # 行情快照的定时推送。必须自建调度：框架的采集器只按 kind 抓 rss / web_list / json_list / x_search，
+  # kind=external 的源永远不会被定时抓取（events/hot.ts:92 的白名单），所以 interval_minutes 对它们
+  # 是无效配置——这就是「更新频率不准」的根因。调度在这里补上。
+  #
+  # 推入地址用容器网络的 http://api:3001，不是宿主的 localhost:3000。
+  # 每分钟一轮；脚本自身对单个品种容错，某个源挂了这轮仍会推另一个源。
+  snapshot:
+    # 用 *backend 不是 *app：只有 *backend 带 `env_file: .env`，用 *app 会丢 INGEST_TOKEN
+    # （推全部被拒，日志只警告「服务会拒绝所有推送」，很容易被忽略）。
+    <<: *backend
+    # 不带 --env-file：镜像里没有 .env 这个文件（带上会直接 `node: .env: not found` 退出），
+    # 变量已由 env_file 注入环境。先等 API 就绪再开始轮询。
+    command: ["sh", "-c", "sleep 15; while true; do node scripts/price-snapshot.ts --base http://api:3001; sleep 60; done"]
+    environment:
+      <<: *backend-env
+      # 24 小时清理要连库删过期快照，用容器网络里的 db 主机名。
+      DATABASE_URL: postgres://aihot:${POSTGRES_PASSWORD:-aihot}@db:5432/aihot
+    restart: unless-stopped
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  # 上金所国内金属：日频数据，一天只出一个收盘价，所以每天一轮而不是每分钟。
+  # 每分钟拉不只是浪费——上金所有 WAF，密集请求会被 403 挡掉（见 scripts/fetch-sge.ts 文件头）。
+  # 多跑几轮也不会重复入库：脚本按「交易日 + 品种」构造 identity，同一交易日会命中已有条目。
+  sge-daily:
+    # 与 snapshot 同理用 *backend，否则丢 INGEST_TOKEN。
+    <<: *backend
+    command: ["sh", "-c", "sleep 30; while true; do node scripts/fetch-sge.ts --base http://api:3001; sleep 86400; done"]
+    environment:
+      <<: *backend-env
+    restart: unless-stopped
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
   web:
     <<: *app
     command: ["node", "apps/web/server.ts"]
