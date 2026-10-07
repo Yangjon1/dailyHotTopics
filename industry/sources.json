@@ -430,10 +430,10 @@
     },
     {
       "id": "rss-yahoo-finance",
-      "name": "Yahoo Finance 新闻",
+      "name": "Yahoo Finance 市场头条",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://finance.yahoo.com/news/rssindex",
+        "feedUrl": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=%5EGSPC&region=US&lang=en-US",
         "_aihot": {
           "initialBackfillLimit": 8
         }
@@ -446,7 +446,8 @@
         "媒体"
       ],
       "site_fulltext": false,
-      "syndicate_fulltext": false
+      "syndicate_fulltext": false,
+      "notes": "原用 finance.yahoo.com/news/rssindex，该路径已下线（实测 404）。改用 feeds.finance.yahoo.com 的头条 feed（实测 200）。抓的是美股头条，用于「事件是否有美股联动」的背景，不作为贵金属主源。"
     },
     {
       "id": "ext-price-snapshot",
